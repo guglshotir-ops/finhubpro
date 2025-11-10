@@ -6,6 +6,8 @@
 from telegram import Bot, ReplyKeyboardMarkup, KeyboardButton, WebAppInfo
 from telegram.ext import Application, CommandHandler, MessageHandler, filters
 from datetime import datetime
+import requests
+import re
 
 # Ваш токен бота
 BOT_TOKEN = "7171341328:AAFn6u2zdI3Ht8gCUtFmPvnt4n-aPPednLw"
@@ -13,13 +15,31 @@ BOT_TOKEN = "7171341328:AAFn6u2zdI3Ht8gCUtFmPvnt4n-aPPednLw"
 # URL вашего мини-приложения (ОБЯЗАТЕЛЬНО HTTPS!)
 WEB_APP_URL = "https://guglshotir-ops.github.io/finhub-pro/"
 
-# Версия кнопки - МЕНЯЙТЕ ЭТО ПРИ КАЖДОМ ОБНОВЛЕНИИ HTML В GITHUB!
-# Формат: test_1, test_2, test_3 и т.д.
-BUTTON_VERSION = "test_2"  # Увеличьте номер при каждом обновлении HTML: test_1 → test_2 → test_3...
+# Кэш версии (обновляется при запуске)
+BUTTON_VERSION_CACHE = None
+
+def get_html_version():
+    """Получает версию из HTML на GitHub Pages"""
+    global BUTTON_VERSION_CACHE
+    try:
+        response = requests.get(WEB_APP_URL, timeout=5)
+        if response.status_code == 200:
+            # Ищем мета-тег с версией
+            match = re.search(r'<meta\s+name=["\']html-version["\']\s+content=["\'](test_\d+)["\']', response.text)
+            if match:
+                version = match.group(1)
+                BUTTON_VERSION_CACHE = version
+                return version
+    except Exception as e:
+        print(f"⚠️ Ошибка получения версии из HTML: {e}")
+    
+    # Fallback на кэш или дефолт
+    return BUTTON_VERSION_CACHE or "test_1"
 
 def get_button_text():
-    """Генерирует текст кнопки с версией"""
-    return BUTTON_VERSION  # Просто "test_1", "test_2" и т.д.
+    """Генерирует текст кнопки с версией из HTML"""
+    version = get_html_version()
+    return version  # "test_1", "test_2" и т.д.
 
 def create_webapp_keyboard():
     """Создает клавиатуру с кнопкой WebApp для полноэкранного режима"""
@@ -72,12 +92,14 @@ def main():
     application.add_handler(CommandHandler("start", start))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     
-    # Запускаем бота
+    # Получаем версию из HTML при запуске
+    print("🔄 Получение версии из HTML...")
     button_text = get_button_text()
     print("✅ Бот запущен и готов к работе!")
     print(f"📱 URL мини-приложения: {WEB_APP_URL}")
     print(f"🔘 Текст кнопки: {button_text}")
-    print(f"📌 Версия кнопки: {BUTTON_VERSION}")
+    print(f"📌 Версия получена из HTML: {BUTTON_VERSION_CACHE}")
+    print(f"💡 Версия обновляется автоматически при каждом обновлении HTML!")
     application.run_polling(allowed_updates=["message"])
 
 if __name__ == "__main__":
