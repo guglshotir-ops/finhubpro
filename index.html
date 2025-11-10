@@ -1361,11 +1361,20 @@
         const searchBar = document.getElementById('searchBar');
         const cancelBtn = document.getElementById('cancelBtn');
 
-        // Search bar focus - show cancel button
+        // Search bar focus - show cancel button and hide footer smoothly
         searchBar.addEventListener('focus', () => {
             triggerHaptic();
             searchContainer.classList.add('active');
             cancelBtn.classList.add('show');
+            // Скрываем footer плавно при открытии клавиатуры
+            document.body.classList.add('keyboard-open');
+            const footer = document.querySelector('.app-footer');
+            if (footer) {
+                footer.style.transform = 'translateY(100%)';
+                footer.style.opacity = '0';
+                footer.style.marginBottom = '-200px';
+                footer.style.pointerEvents = 'none';
+            }
         });
 
         // Cancel button click - hide and blur
