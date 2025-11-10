@@ -26,27 +26,41 @@ def create_webapp_keyboard():
     button_text = get_button_text()
     
     # КРИТИЧЕСКИ ВАЖНО: KeyboardButton с web_app, НЕ InlineKeyboardButton!
+    # Согласно документации: web_app работает только в приватных чатах
+    web_app_info = WebAppInfo(url=WEB_APP_URL)
     web_app_button = KeyboardButton(
         text=button_text,  # Динамический текст кнопки с версией
-        web_app=WebAppInfo(url=WEB_APP_URL)  # URL мини-приложения
+        web_app=web_app_info  # URL мини-приложения
     )
     
+    # Проверка для отладки
+    print(f"🔍 Создана кнопка: text='{button_text}', url='{WEB_APP_URL}'")
+    print(f"🔍 Тип кнопки: KeyboardButton с web_app")
+    
     # Создаем клавиатуру
-    return ReplyKeyboardMarkup(
+    keyboard = ReplyKeyboardMarkup(
         [[web_app_button]],  # Кнопка в одной строке
         resize_keyboard=True,  # Автоматически изменять размер
         one_time_keyboard=False,  # Кнопка остается видимой
         input_field_placeholder="Нажмите кнопку для открытия приложения"
     )
+    
+    return keyboard
 
 async def start(update, context):
     """Обработчик команды /start"""
-    keyboard = create_webapp_keyboard()
+    # Проверка типа чата для отладки
+    chat_type = update.effective_chat.type
+    print(f"🔍 Команда /start от пользователя {update.effective_user.id} в чате типа: {chat_type}")
     
+    keyboard = create_webapp_keyboard()
     button_text = get_button_text()
+    
     await update.message.reply_text(
         "👋 Добро пожаловать!\n\n"
-        f"Нажмите кнопку '{button_text}' ниже для открытия приложения в полноэкранном режиме.",
+        f"Нажмите кнопку '{button_text}' ниже для открытия приложения в полноэкранном режиме.\n\n"
+        f"📱 URL: {WEB_APP_URL}\n"
+        f"💬 Тип чата: {chat_type}",
         reply_markup=keyboard
     )
 
