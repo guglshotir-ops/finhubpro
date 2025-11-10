@@ -22,9 +22,15 @@
                     const tg = window.Telegram.WebApp;
                     
                     // КРИТИЧЕСКИ ВАЖНО: expand() ПЕРВЫМ! МНОЖЕСТВЕННЫЕ ВЫЗОВЫ!
-                    tg.expand();
-                    tg.expand();
-                    tg.expand();
+                    // Вызываем expand() ДО ready() и ДО любых других операций
+                    if (tg.expand) {
+                        tg.expand();
+                        tg.expand();
+                        tg.expand();
+                        // Еще раз после небольшой задержки
+                        setTimeout(() => tg.expand(), 0);
+                        setTimeout(() => tg.expand(), 0);
+                    }
                     
                     // Настройка
                     tg.setHeaderColor('#1A1A1A');
