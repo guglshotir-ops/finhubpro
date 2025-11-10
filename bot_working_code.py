@@ -15,7 +15,7 @@ WEB_APP_URL = "https://guglshotir-ops.github.io/finhub-pro/"
 
 # Версия кнопки - МЕНЯЙТЕ ЭТО ПРИ КАЖДОМ ОБНОВЛЕНИИ HTML В GITHUB!
 # Формат: test_1, test_2, test_3 и т.д.
-BUTTON_VERSION = "test_1"  # Увеличьте номер при каждом обновлении HTML: test_1 → test_2 → test_3...
+BUTTON_VERSION = "test_2"  # Увеличьте номер при каждом обновлении HTML: test_1 → test_2 → test_3...
 
 def get_button_text():
     """Генерирует текст кнопки с версией"""
