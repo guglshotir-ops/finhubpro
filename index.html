@@ -788,21 +788,22 @@
             padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
             /* iOS-стиль плавная анимация - как в нативных приложениях */
             transition: transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1),
-                        opacity 0.5s cubic-bezier(0.25, 0.1, 0.25, 1),
-                        margin-bottom 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
-            transform: translateY(0) scale(1);
+                        opacity 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+            transform: translateY(0);
             opacity: 1;
-            margin-bottom: 0;
+            /* Убираем margin-bottom из transition, чтобы избежать мерцания */
             will-change: transform, opacity;
+            /* Предотвращаем рефлоу */
+            contain: layout style paint;
         }
         
         /* Скрываем footer когда поиск активен (клавиатура открыта) - iOS плавность */
-        .search-container.active ~ .app-content ~ .app-footer,
         body.keyboard-open .app-footer {
-            transform: translateY(100%) scale(0.95);
+            transform: translateY(calc(100% + env(safe-area-inset-bottom, 0px)));
             opacity: 0;
-            margin-bottom: -200px;
             pointer-events: none;
+            /* Убираем из потока документа для предотвращения мерцания */
+            visibility: hidden;
         }
 
         .refresh-btn {
@@ -1367,18 +1368,20 @@
             triggerHaptic();
             searchContainer.classList.add('active');
             cancelBtn.classList.add('show');
-            // Скрываем footer плавно при открытии клавиатуры - iOS стиль
-            document.body.classList.add('keyboard-open');
+            // Скрываем footer плавно при открытии клавиатуры - iOS стиль БЕЗ мерцания
             const footer = document.querySelector('.app-footer');
             if (footer) {
-                // Используем CSS transition вместо прямого стиля для плавности
-                footer.style.transition = 'transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1), opacity 0.5s cubic-bezier(0.25, 0.1, 0.25, 1), margin-bottom 0.5s cubic-bezier(0.25, 0.1, 0.25, 1)';
-                // Небольшая задержка для более плавного эффекта
+                // Убираем все inline стили, чтобы использовать только CSS класс
+                footer.style.transform = '';
+                footer.style.opacity = '';
+                footer.style.marginBottom = '';
+                footer.style.pointerEvents = '';
+                footer.style.visibility = '';
+                // Применяем класс после небольшой задержки для плавности
                 requestAnimationFrame(() => {
-                    footer.style.transform = 'translateY(100%) scale(0.95)';
-                    footer.style.opacity = '0';
-                    footer.style.marginBottom = '-200px';
-                    footer.style.pointerEvents = 'none';
+                    requestAnimationFrame(() => {
+                        document.body.classList.add('keyboard-open');
+                    });
                 });
             }
         });
@@ -1390,18 +1393,20 @@
             cancelBtn.classList.remove('show');
             searchBar.value = '';
             searchBar.blur();
-            // Показываем footer обратно плавно при закрытии клавиатуры - iOS стиль
-            document.body.classList.remove('keyboard-open');
+            // Показываем footer обратно плавно при закрытии клавиатуры - iOS стиль БЕЗ мерцания
             const footer = document.querySelector('.app-footer');
             if (footer) {
-                // Используем CSS transition для плавности
-                footer.style.transition = 'transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1), opacity 0.5s cubic-bezier(0.25, 0.1, 0.25, 1), margin-bottom 0.5s cubic-bezier(0.25, 0.1, 0.25, 1)';
-                // Небольшая задержка для более плавного эффекта
+                // Убираем все inline стили
+                footer.style.transform = '';
+                footer.style.opacity = '';
+                footer.style.marginBottom = '';
+                footer.style.pointerEvents = '';
+                footer.style.visibility = '';
+                // Убираем класс для показа footer
                 requestAnimationFrame(() => {
-                    footer.style.transform = 'translateY(0) scale(1)';
-                    footer.style.opacity = '1';
-                    footer.style.marginBottom = '0';
-                    footer.style.pointerEvents = 'auto';
+                    requestAnimationFrame(() => {
+                        document.body.classList.remove('keyboard-open');
+                    });
                 });
             }
             // Показать все банки при очистке поиска
@@ -1418,18 +1423,20 @@
                     if (document.activeElement !== searchBar) {
                         searchContainer.classList.remove('active');
                         cancelBtn.classList.remove('show');
-                        // Показываем footer обратно плавно при закрытии клавиатуры - iOS стиль
-                        document.body.classList.remove('keyboard-open');
+                        // Показываем footer обратно плавно при закрытии клавиатуры - iOS стиль БЕЗ мерцания
                         const footer = document.querySelector('.app-footer');
                         if (footer) {
-                            // Используем CSS transition для плавности
-                            footer.style.transition = 'transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1), opacity 0.5s cubic-bezier(0.25, 0.1, 0.25, 1), margin-bottom 0.5s cubic-bezier(0.25, 0.1, 0.25, 1)';
-                            // Небольшая задержка для более плавного эффекта
+                            // Убираем все inline стили
+                            footer.style.transform = '';
+                            footer.style.opacity = '';
+                            footer.style.marginBottom = '';
+                            footer.style.pointerEvents = '';
+                            footer.style.visibility = '';
+                            // Убираем класс для показа footer
                             requestAnimationFrame(() => {
-                                footer.style.transform = 'translateY(0) scale(1)';
-                                footer.style.opacity = '1';
-                                footer.style.marginBottom = '0';
-                                footer.style.pointerEvents = 'auto';
+                                requestAnimationFrame(() => {
+                                    document.body.classList.remove('keyboard-open');
+                                });
                             });
                         }
                     }
