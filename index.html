@@ -107,6 +107,40 @@
                     console.log('Version:', tg.version);
                     console.log('Viewport:', window.innerWidth + 'x' + window.innerHeight);
                     console.log('InitParams:', tg.initData);
+                    
+                    // Принудительно устанавливаем полноэкранный вид через CSS
+                    document.documentElement.style.height = '100vh';
+                    document.documentElement.style.height = '100dvh';
+                    document.documentElement.style.overflow = 'hidden';
+                    document.body.style.height = '100vh';
+                    document.body.style.height = '100dvh';
+                    document.body.style.overflow = 'hidden';
+                    
+                    // Скрываем элементы навигации браузера (если возможно)
+                    if (window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches) {
+                        console.log('✅ Приложение работает в standalone режиме');
+                    }
+                    
+                    // Предотвращаем прокрутку страницы
+                    document.addEventListener('touchmove', function(e) {
+                        if (e.target.closest('.app-content')) {
+                            return; // Разрешаем прокрутку только внутри контента
+                        }
+                        e.preventDefault();
+                    }, { passive: false });
+                    
+                    // Предотвращаем масштабирование
+                    document.addEventListener('gesturestart', function(e) {
+                        e.preventDefault();
+                    });
+                    
+                    document.addEventListener('gesturechange', function(e) {
+                        e.preventDefault();
+                    });
+                    
+                    document.addEventListener('gestureend', function(e) {
+                        e.preventDefault();
+                    });
                 } else {
                     // Повторная попытка через 5ms
                     setTimeout(initTelegramWebApp, 5);
@@ -130,28 +164,61 @@
             -webkit-tap-highlight-color: transparent;
         }
 
+        html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+        
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
             background: #000000;
-            min-height: 100vh;
-            width: 100%;
+            width: 100vw;
             height: 100vh;
+            height: 100dvh; /* Dynamic viewport height для мобильных */
             position: fixed;
             top: 0;
             left: 0;
             padding: 0;
             margin: 0;
             overflow: hidden;
+            /* Скрываем скроллбар полностью */
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            /* Предотвращаем масштабирование */
+            touch-action: pan-x pan-y;
+            /* Убираем выделение текста */
+            -webkit-user-select: none;
+            user-select: none;
+            /* Убираем tap highlight */
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body::-webkit-scrollbar {
+            display: none;
         }
 
         .app-container {
-            width: 100%;
+            width: 100vw;
             height: 100vh;
+            height: 100dvh; /* Dynamic viewport height */
             display: flex;
             flex-direction: column;
             background: linear-gradient(180deg, #1A1A1A 0%, #0D0D0D 100%);
-            position: relative;
+            position: fixed;
+            top: 0;
+            left: 0;
             overflow: hidden;
+            /* Убираем любые отступы */
+            margin: 0;
+            padding: 0;
+            /* Предотвращаем прокрутку страницы */
+            overscroll-behavior: none;
+            /* Полноэкранный вид */
+            z-index: 9999;
         }
 
         /* HEADER */
@@ -162,10 +229,14 @@
             -webkit-backdrop-filter: blur(20px);
             border-bottom: 0.3px solid #36353A;
             z-index: 100;
+            /* Убираем отступы сверху для полноэкранного вида */
+            padding-top: env(safe-area-inset-top, 0);
+            /* Скрываем системные элементы */
+            position: relative;
         }
 
         .header-content {
-            padding: 44px 20px 16px;
+            padding: max(44px, env(safe-area-inset-top, 44px)) 20px 16px;
         }
 
         /* TOP SECTION - Apple Stocks Style */
@@ -391,9 +462,16 @@
             overflow-x: hidden;
             -webkit-overflow-scrolling: touch;
             scroll-behavior: smooth;
+            /* Полная высота с учетом safe area */
+            height: calc(100vh - var(--header-height, 200px) - var(--footer-height, 120px));
+            height: calc(100dvh - var(--header-height, 200px) - var(--footer-height, 120px));
+            /* Убираем скроллбар */
+            scrollbar-width: none;
+            -ms-overflow-style: none;
         }
 
         .app-content::-webkit-scrollbar {
+            display: none;
             width: 0;
         }
 
@@ -619,8 +697,10 @@
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border-top: 0.3px solid #36353A;
-            padding: 16px 20px 20px;
+            padding: 16px 20px max(20px, env(safe-area-inset-bottom, 20px));
             z-index: 100;
+            /* Учитываем safe area снизу */
+            padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
         }
 
         .refresh-btn {
