@@ -6,11 +6,8 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <!-- Скрываем интерфейс браузера для полноэкранного вида -->
-    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
-    <meta name="color-scheme" content="dark">
     <!-- ВЕРСИЯ HTML - МЕНЯЕТСЯ ПРИ КАЖДОМ ОБНОВЛЕНИИ -->
-    <meta name="html-version" content="test_3" id="html-version">
+    <meta name="html-version" content="test_2" id="html-version">
     <title>Курсы валют - FinHub</title>
     <!-- Telegram WebApp SDK - ОБЯЗАТЕЛЬНО ПЕРВЫМ! -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -111,87 +108,20 @@
                     console.log('Viewport:', window.innerWidth + 'x' + window.innerHeight);
                     console.log('InitParams:', tg.initData);
                     
-                    // ПРИНУДИТЕЛЬНО УСТАНАВЛИВАЕМ ПОЛНОЭКРАННЫЙ ВИД - КЛОНИРОВАНИЕ LAUNCHER UX/UI
-                    // 1. Устанавливаем размеры экрана
-                    document.documentElement.style.width = '100vw';
+                    // Принудительно устанавливаем полноэкранный вид через CSS
                     document.documentElement.style.height = '100vh';
                     document.documentElement.style.height = '100dvh';
                     document.documentElement.style.overflow = 'hidden';
-                    document.documentElement.style.position = 'fixed';
-                    document.documentElement.style.top = '0';
-                    document.documentElement.style.left = '0';
-                    document.documentElement.style.margin = '0';
-                    document.documentElement.style.padding = '0';
-                    
-                    document.body.style.width = '100vw';
                     document.body.style.height = '100vh';
                     document.body.style.height = '100dvh';
                     document.body.style.overflow = 'hidden';
-                    document.body.style.position = 'fixed';
-                    document.body.style.top = '0';
-                    document.body.style.left = '0';
-                    document.body.style.margin = '0';
-                    document.body.style.padding = '0';
-                    document.body.style.backgroundColor = '#000000';
                     
-                    // 2. Скрываем все элементы Telegram UI через CSS injection
-                    const style = document.createElement('style');
-                    style.id = 'fullscreen-launcher-style';
-                    style.textContent = `
-                        /* Скрываем заголовок Telegram Mini App */
-                        body > :not(.app-container) {
-                            display: none !important;
-                        }
-                        
-                        /* Убираем все отступы и границы */
-                        html, body {
-                            margin: 0 !important;
-                            padding: 0 !important;
-                            border: none !important;
-                            outline: none !important;
-                        }
-                        
-                        /* Приложение занимает весь экран */
-                        .app-container {
-                            position: fixed !important;
-                            top: 0 !important;
-                            left: 0 !important;
-                            width: 100vw !important;
-                            height: 100vh !important;
-                            height: 100dvh !important;
-                            margin: 0 !important;
-                            padding: 0 !important;
-                            z-index: 999999 !important;
-                        }
-                        
-                        /* Скрываем скроллбары везде */
-                        * {
-                            scrollbar-width: none !important;
-                            -ms-overflow-style: none !important;
-                        }
-                        
-                        *::-webkit-scrollbar {
-                            display: none !important;
-                            width: 0 !important;
-                            height: 0 !important;
-                        }
-                    `;
-                    document.head.appendChild(style);
+                    // Скрываем элементы навигации браузера (если возможно)
+                    if (window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches) {
+                        console.log('✅ Приложение работает в standalone режиме');
+                    }
                     
-                    // 3. Удаляем все элементы кроме нашего приложения
-                    setTimeout(() => {
-                        const allElements = document.body.children;
-                        for (let i = 0; i < allElements.length; i++) {
-                            if (!allElements[i].classList.contains('app-container')) {
-                                allElements[i].style.display = 'none';
-                            }
-                        }
-                    }, 100);
-                    
-                    // 4. Устанавливаем цвет фона страницы
-                    document.documentElement.style.backgroundColor = '#000000';
-                    
-                    // 5. Предотвращаем прокрутку страницы
+                    // Предотвращаем прокрутку страницы
                     document.addEventListener('touchmove', function(e) {
                         if (e.target.closest('.app-content')) {
                             return; // Разрешаем прокрутку только внутри контента
@@ -199,7 +129,7 @@
                         e.preventDefault();
                     }, { passive: false });
                     
-                    // 6. Предотвращаем масштабирование
+                    // Предотвращаем масштабирование
                     document.addEventListener('gesturestart', function(e) {
                         e.preventDefault();
                     });
@@ -211,21 +141,6 @@
                     document.addEventListener('gestureend', function(e) {
                         e.preventDefault();
                     });
-                    
-                    // 7. Предотвращаем контекстное меню
-                    document.addEventListener('contextmenu', function(e) {
-                        e.preventDefault();
-                    });
-                    
-                    // 8. Устанавливаем фокус на приложение
-                    setTimeout(() => {
-                        const appContainer = document.querySelector('.app-container');
-                        if (appContainer) {
-                            appContainer.focus();
-                        }
-                    }, 200);
-                    
-                    console.log('✅ Полноэкранный launcher UX/UI активирован!');
                 } else {
                     // Повторная попытка через 5ms
                     setTimeout(initTelegramWebApp, 5);
@@ -786,24 +701,26 @@
             z-index: 100;
             /* Учитываем safe area снизу */
             padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
-            /* iOS-стиль плавная анимация - как в нативных приложениях */
-            transition: transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1),
-                        opacity 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+            /* iOS-стиль плавная анимация БЕЗ мерцания */
+            transition: transform 0.4s cubic-bezier(0.25, 0.1, 0.25, 1),
+                        opacity 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
             transform: translateY(0);
             opacity: 1;
-            /* Убираем margin-bottom из transition, чтобы избежать мерцания */
+            /* Оптимизация для предотвращения мерцания */
             will-change: transform, opacity;
-            /* Предотвращаем рефлоу */
-            contain: layout style paint;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            transform-style: preserve-3d;
+            /* Фиксируем фон, чтобы избежать мерцания */
+            background-attachment: fixed;
         }
         
-        /* Скрываем footer когда поиск активен (клавиатура открыта) - iOS плавность */
+        /* Скрываем footer когда поиск активен - БЕЗ visibility для предотвращения мерцания */
         body.keyboard-open .app-footer {
-            transform: translateY(calc(100% + env(safe-area-inset-bottom, 0px)));
+            transform: translateY(100%);
             opacity: 0;
             pointer-events: none;
-            /* Убираем из потока документа для предотвращения мерцания */
-            visibility: hidden;
+            /* НЕ используем visibility: hidden - это вызывает мерцание */
         }
 
         .refresh-btn {
@@ -911,7 +828,7 @@
                 <!-- Title & Date & Menu -->
                 <div class="header-top-section">
                     <div class="header-title-group">
-                        <div class="header-main-title">Курсы валют <span style="font-size: 20px; color: #0A84FF; font-weight: 600;">test_3</span></div>
+                        <div class="header-main-title">Курсы валют <span style="font-size: 20px; color: #0A84FF; font-weight: 600;">test_2</span></div>
                         <div class="header-date">5 ноября</div>
                     </div>
                     <button class="header-menu-btn"></button>
@@ -965,7 +882,7 @@
             <button class="refresh-btn" id="refreshBtn">Обновить курсы</button>
             <div class="footer-info">
                 <div class="update-time" id="updateTime">Обновлено в 14:30</div>
-                <div class="app-version">FinHub v1.0 | HTML: test_3</div>
+                <div class="app-version">FinHub v1.0 | HTML: test_2</div>
             </div>
         </div>
 
@@ -1368,22 +1285,11 @@
             triggerHaptic();
             searchContainer.classList.add('active');
             cancelBtn.classList.add('show');
-            // Скрываем footer плавно при открытии клавиатуры - iOS стиль БЕЗ мерцания
-            const footer = document.querySelector('.app-footer');
-            if (footer) {
-                // Убираем все inline стили, чтобы использовать только CSS класс
-                footer.style.transform = '';
-                footer.style.opacity = '';
-                footer.style.marginBottom = '';
-                footer.style.pointerEvents = '';
-                footer.style.visibility = '';
-                // Применяем класс после небольшой задержки для плавности
-                requestAnimationFrame(() => {
-                    requestAnimationFrame(() => {
-                        document.body.classList.add('keyboard-open');
-                    });
-                });
-            }
+            // Скрываем footer плавно БЕЗ мерцания
+            // Используем только CSS класс, без inline стилей
+            setTimeout(() => {
+                document.body.classList.add('keyboard-open');
+            }, 10); // Небольшая задержка для плавности
         });
 
         // Cancel button click - hide and blur
@@ -1393,22 +1299,8 @@
             cancelBtn.classList.remove('show');
             searchBar.value = '';
             searchBar.blur();
-            // Показываем footer обратно плавно при закрытии клавиатуры - iOS стиль БЕЗ мерцания
-            const footer = document.querySelector('.app-footer');
-            if (footer) {
-                // Убираем все inline стили
-                footer.style.transform = '';
-                footer.style.opacity = '';
-                footer.style.marginBottom = '';
-                footer.style.pointerEvents = '';
-                footer.style.visibility = '';
-                // Убираем класс для показа footer
-                requestAnimationFrame(() => {
-                    requestAnimationFrame(() => {
-                        document.body.classList.remove('keyboard-open');
-                    });
-                });
-            }
+            // Показываем footer обратно плавно БЕЗ мерцания
+            document.body.classList.remove('keyboard-open');
             // Показать все банки при очистке поиска
             if (window.currentRates) {
                 filterAndDisplay('');
@@ -1423,22 +1315,8 @@
                     if (document.activeElement !== searchBar) {
                         searchContainer.classList.remove('active');
                         cancelBtn.classList.remove('show');
-                        // Показываем footer обратно плавно при закрытии клавиатуры - iOS стиль БЕЗ мерцания
-                        const footer = document.querySelector('.app-footer');
-                        if (footer) {
-                            // Убираем все inline стили
-                            footer.style.transform = '';
-                            footer.style.opacity = '';
-                            footer.style.marginBottom = '';
-                            footer.style.pointerEvents = '';
-                            footer.style.visibility = '';
-                            // Убираем класс для показа footer
-                            requestAnimationFrame(() => {
-                                requestAnimationFrame(() => {
-                                    document.body.classList.remove('keyboard-open');
-                                });
-                            });
-                        }
+                        // Показываем footer обратно плавно БЕЗ мерцания
+                        document.body.classList.remove('keyboard-open');
                     }
                 }, 100);
             }
