@@ -701,29 +701,17 @@
             z-index: 100;
             /* Учитываем safe area снизу */
             padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
-            /* iOS-стиль плавная анимация БЕЗ мерцания */
-            transition: transform 0.4s cubic-bezier(0.25, 0.1, 0.25, 1),
-                        opacity 0.4s cubic-bezier(0.25, 0.1, 0.25, 1),
-                        backdrop-filter 0.4s cubic-bezier(0.25, 0.1, 0.25, 1),
-                        -webkit-backdrop-filter 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+            /* ПРОСТАЯ анимация - только transform и opacity */
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
             transform: translateY(0);
             opacity: 1;
-            /* Оптимизация для предотвращения мерцания */
-            will-change: transform, opacity;
-            backface-visibility: hidden;
-            -webkit-backface-visibility: hidden;
-            /* Изолируем слой для предотвращения мерцания */
-            isolation: isolate;
         }
         
-        /* Скрываем footer когда поиск активен - БЕЗ мерцания */
+        /* Скрываем footer когда клавиатура открыта */
         body.keyboard-open .app-footer {
             transform: translateY(100%);
             opacity: 0;
             pointer-events: none;
-            /* Убираем backdrop-filter во время анимации для предотвращения мерцания */
-            backdrop-filter: blur(0px);
-            -webkit-backdrop-filter: blur(0px);
         }
 
         .refresh-btn {
@@ -1283,16 +1271,13 @@
         const searchBar = document.getElementById('searchBar');
         const cancelBtn = document.getElementById('cancelBtn');
 
-        // Search bar focus - show cancel button and hide footer smoothly
+        // Search bar focus - show cancel button and hide footer
         searchBar.addEventListener('focus', () => {
             triggerHaptic();
             searchContainer.classList.add('active');
             cancelBtn.classList.add('show');
-            // Скрываем footer плавно БЕЗ мерцания
-            // Используем только CSS класс, без inline стилей
-            setTimeout(() => {
-                document.body.classList.add('keyboard-open');
-            }, 10); // Небольшая задержка для плавности
+            // Скрываем footer
+            document.body.classList.add('keyboard-open');
         });
 
         // Cancel button click - hide and blur
@@ -1302,7 +1287,7 @@
             cancelBtn.classList.remove('show');
             searchBar.value = '';
             searchBar.blur();
-            // Показываем footer обратно плавно БЕЗ мерцания
+            // Показываем footer обратно
             document.body.classList.remove('keyboard-open');
             // Показать все банки при очистке поиска
             if (window.currentRates) {
@@ -1318,7 +1303,7 @@
                     if (document.activeElement !== searchBar) {
                         searchContainer.classList.remove('active');
                         cancelBtn.classList.remove('show');
-                        // Показываем footer обратно плавно БЕЗ мерцания
+                        // Показываем footer обратно
                         document.body.classList.remove('keyboard-open');
                     }
                 }, 100);
