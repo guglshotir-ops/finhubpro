@@ -10,7 +10,7 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters
 BOT_TOKEN = "7171341328:AAFn6u2zdI3Ht8gCUtFmPvnt4n-aPPednLw"
 
 # URL вашего мини-приложения (ОБЯЗАТЕЛЬНО HTTPS!)
-WEB_APP_URL = "https://guglshotir-ops.github.io/finhub-pro/"
+WEB_APP_URL = "https://guglshotir-ops.github.io/ufffffff/"
 
 # Версия кнопки - МЕНЯЙТЕ ЭТО ПРИ КАЖДОМ ОБНОВЛЕНИИ HTML В GITHUB!
 # Формат: test_1, test_2, test_3 и т.д.
