@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Курсы валют - FinHub</title>
+    <!-- Telegram WebApp SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+            background: #000000;
+            min-height: 100vh;
+            width: 100%;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .app-container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(180deg, #1A1A1A 0%, #0D0D0D 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* HEADER */
+        .app-header {
+            flex-shrink: 0;
+            background: linear-gradient(180deg, #1A1A1A 0%, rgba(26, 26, 26, 0.95) 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 0.3px solid #36353A;
+            z-index: 100;
+        }
+
+        .header-content {
+            padding: 44px 20px 16px;
+        }
+
+        /* TOP SECTION - Apple Stocks Style */
+        .header-top-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .header-title-group {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .header-main-title {
+            font-family: 'SF Pro Display', -apple-system, sans-serif;
+            font-size: 34px;
+            font-weight: 800;
+            color: #FFFFFF;
+            letter-spacing: -0.8px;
+            line-height: 1.1;
+        }
+
+        .header-date {
+            font-family: 'SF Pro Display', -apple-system, sans-serif;
+            font-size: 34px;
+            font-weight: 800;
+            color: #8E8E93;
+            letter-spacing: -0.8px;
+            line-height: 1.1;
+        }
+
+        .header-menu-btn {
+            width: 32px;
+            height: 32px;
+            background: rgba(118, 118, 128, 0.24);
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin-top: 4px;
+        }
+
+        .header-menu-btn::before {
+            content: '⋯';
+            color: #8E8E93;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        /* SEARCH BAR */
+        .search-container {
+            position: relative;
+            margin-bottom: 16px;
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-wrapper {
+            position: relative;
+            width: 100%;
+            transition: width 0.45s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+
+        .search-bar {
+            width: 100%;
+            height: 36px;
+            background: rgba(118, 118, 128, 0.24);
+            border: none;
+            border-radius: 10px;
+            padding: 8px 40px 8px 40px;
+            color: #FFFFFF;
+            font-family: 'SF Pro Text', -apple-system, sans-serif;
+            font-size: 17px;
+            font-weight: 400;
+            line-height: 22px;
+            letter-spacing: -0.408px;
+            transform: translateZ(0);
+            backface-visibility: hidden;
+            -webkit-font-smoothing: antialiased;
+            transition: background 0.2s ease-in-out, transform 0.1s ease-out;
+        }
+
+        .search-bar:active {
+            background: rgba(118, 118, 128, 0.32);
+        }
+
+        .search-bar::placeholder {
+            color: rgba(235, 235, 245, 0.6);
+        }
+
+        .search-bar:focus {
+            outline: none;
+            background: rgba(118, 118, 128, 0.32);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 8px;
+            top: 4px;
+            pointer-events: none;
+            transition: all 0.45s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+
+        .mic-icon {
+            position: absolute;
+            right: 8px;
+            top: 6px;
+            cursor: pointer;
+            transition: all 0.45s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+
+        /* CANCEL BUTTON */
+        .cancel-btn {
+            font-family: 'SF Pro Text', -apple-system, sans-serif;
+            font-size: 17px;
+            font-weight: 400;
+            color: #0A84FF;
+            background: none;
+            border: none;
+            padding: 0;
+            margin-left: 8px;
+            cursor: pointer;
+            white-space: nowrap;
+            width: 0;
+            opacity: 0;
+            overflow: hidden;
+            pointer-events: none;
+            transition: width 0.45s cubic-bezier(0.4, 0.0, 0.2, 1), 
+                        opacity 0.45s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+
+        .cancel-btn.show {
+            width: 82px;
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .cancel-btn:active {
+            opacity: 0.5;
+            transform: scale(0.96);
+            transition: all 0.1s ease-out;
+        }
+
+        /* ACTIVE STATE */
+        .search-container.active .search-wrapper {
+            width: calc(100% - 90px);
+        }
+
+        /* MOI TIKERY - Hide */
+        .watchlist-title {
+            display: none;
+        }
+
+        /* MOI TIKERY SECTION */
+        .watchlist-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #0A84FF;
+            letter-spacing: -0.4px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .watchlist-title::after {
+            content: '◆';
+            font-size: 14px;
+            transform: rotate(45deg);
+        }
+
+        .header-top {
+            display: none;
+        }
+
+        .currency-tabs {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .currency-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .currency-tab {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.08);
+            border: none;
+            border-radius: 18px;
+            color: #939298;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+            letter-spacing: -0.1px;
+        }
+
+        .currency-tab.active {
+            background: #FFFFFF;
+            color: #000000;
+            transform: scale(1.02);
+        }
+
+        .currency-tab:active {
+            transform: scale(0.96);
+        }
+
+        /* CONTENT */
+        .app-content {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+        }
+
+        .app-content::-webkit-scrollbar {
+            width: 0;
+        }
+
+        .stocks-list {
+            padding: 8px 0;
+            opacity: 1;
+            transform: scale(1);
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .stocks-list.scale-out {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+
+        .stocks-list.scale-in {
+            opacity: 0;
+            transform: scale(1.05);
+        }
+
+        .stock-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            min-height: 68px;
+            position: relative;
+            transition: background 0.2s;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slideUpRow 0.4s ease-out forwards;
+        }
+
+        .stock-row:nth-child(1) { animation-delay: 0.05s; }
+        .stock-row:nth-child(2) { animation-delay: 0.10s; }
+        .stock-row:nth-child(3) { animation-delay: 0.15s; }
+        .stock-row:nth-child(4) { animation-delay: 0.20s; }
+        .stock-row:nth-child(5) { animation-delay: 0.25s; }
+        .stock-row:nth-child(6) { animation-delay: 0.30s; }
+        .stock-row:nth-child(7) { animation-delay: 0.35s; }
+        .stock-row:nth-child(8) { animation-delay: 0.40s; }
+        .stock-row:nth-child(9) { animation-delay: 0.45s; }
+        .stock-row:nth-child(10) { animation-delay: 0.50s; }
+        .stock-row:nth-child(11) { animation-delay: 0.55s; }
+        .stock-row:nth-child(12) { animation-delay: 0.60s; }
+        .stock-row:nth-child(13) { animation-delay: 0.65s; }
+        .stock-row:nth-child(14) { animation-delay: 0.70s; }
+        .stock-row:nth-child(15) { animation-delay: 0.75s; }
+        .stock-row:nth-child(16) { animation-delay: 0.80s; }
+        .stock-row:nth-child(17) { animation-delay: 0.85s; }
+        .stock-row:nth-child(18) { animation-delay: 0.90s; }
+        .stock-row:nth-child(19) { animation-delay: 0.95s; }
+        .stock-row:nth-child(20) { animation-delay: 1.00s; }
+
+        @keyframes slideUpRow {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stock-row:active {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .stock-row:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 20px;
+            right: 20px;
+            height: 0.3px;
+            background: #36353A;
+        }
+
+        .company-details {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 0 0 auto;
+            min-width: 100px;
+        }
+
+        .symbol-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .trend-caret {
+            width: 8px;
+            height: 8px;
+            border-radius: 1px;
+            flex-shrink: 0;
+        }
+
+        .trend-caret.up {
+            background: #34C85A;
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        }
+
+        .trend-caret.down {
+            background: #FD3B31;
+            clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
+        }
+
+        .symbol {
+            font-size: 15px;
+            font-weight: 600;
+            line-height: 18px;
+            letter-spacing: -0.2px;
+            color: #FFFFFF;
+        }
+
+        .company-name {
+            font-size: 12px;
+            font-weight: 500;
+            line-height: 14px;
+            color: #939298;
+            padding-left: 14px;
+            width: 112px;
+            min-width: 112px;
+            max-width: 112px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: inline-block;
+        }
+        .fade-container {
+            position: relative;
+            display: block;
+            width: 100px;
+            height: 14px;
+            overflow: hidden;
+        }
+        .fade-container .fade-text {
+            display: inline-block;
+            white-space: nowrap;
+            transition: transform 7s linear;
+            position: relative;
+        }
+        .fade-container .fade-mask {
+            pointer-events: none;
+            position: absolute;
+            top: 0; bottom: 0;
+            z-index: 2;
+        }
+        .fade-container .fade-mask.fade-right {
+            width: 50px;
+            right: -18px;
+            background: linear-gradient(to left, #181818 0%, rgba(24,24,24,0.92) 30%, rgba(24,24,24,0.6) 60%, transparent 98%);
+        }
+        .fade-container .fade-mask.fade-left {
+            width: 20px;
+            left: 0;
+            background: linear-gradient(to right, #181818, transparent 65%);
+            opacity: 0;
+            transition: opacity 0.25s;
+        }
+        .fade-container.scrolling .fade-mask.fade-left {
+            opacity: 1;
+        }
+        .rates-section {
+            display: flex;
+            gap: 20px;
+            flex: 1;
+            justify-content: center;
+            padding-left: 8px;
+        }
+
+        .rate-block {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .rate-label {
+            font-size: 10px;
+            font-weight: 600;
+            line-height: 12px;
+            color: #939298;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+        }
+
+        .rate-value {
+            font-size: 15px;
+            font-weight: 600;
+            line-height: 18px;
+            letter-spacing: -0.2px;
+            color: #FFFFFF;
+            display: flex;
+            align-items: baseline;
+        }
+
+        .rate-integer {
+            font-variant-numeric: tabular-nums;
+        }
+
+        .rate-decimal {
+            font-variant-numeric: tabular-nums;
+            display: inline-block;
+            min-width: 3ch;
+        }
+
+        .chart-container {
+            flex: 0 0 auto;
+            width: 60px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+        }
+
+        /* FOOTER */
+        .app-footer {
+            flex-shrink: 0;
+            background: linear-gradient(0deg, #0D0D0D 0%, rgba(13, 13, 13, 0.95) 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 0.3px solid #36353A;
+            padding: 16px 20px 20px;
+            z-index: 100;
+        }
+
+        .refresh-btn {
+            width: 100%;
+            padding: 16px;
+            background: #FFFFFF;
+            border: none;
+            border-radius: 14px;
+            color: #000000;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: -0.2px;
+            box-shadow: 0 2px 12px rgba(255, 255, 255, 0.15);
+        }
+
+        .refresh-btn:active {
+            transform: scale(0.97);
+            opacity: 0.9;
+        }
+
+        .footer-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+        }
+
+        .update-time {
+            font-size: 12px;
+            font-weight: 500;
+            color: #939298;
+        }
+
+        .app-version {
+            font-size: 12px;
+            font-weight: 500;
+            color: #36353A;
+        }
+
+        /* Loading State */
+        .loading-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(13, 13, 13, 0.8);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top-color: #FFFFFF;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 389px) {
+            .app-container {
+                width: 100%;
+            }
+
+            .rates-section {
+                gap: 16px;
+            }
+
+            .rate-value {
+                font-size: 14px;
+            }
+
+            .chart-container {
+                width: 52px;
+                height: 24px;
+            }
+        }
+
+        @media (min-height: 845px) {
+            .app-container {
+                border-radius: 22px;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+                max-height: 844px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- HEADER -->
+        <div class="app-header">
+            <div class="header-content">
+                <!-- Title & Date & Menu -->
+                <div class="header-top-section">
+                    <div class="header-title-group">
+                        <div class="header-main-title">Курсы валют</div>
+                        <div class="header-date">5 ноября</div>
+                    </div>
+                    <button class="header-menu-btn"></button>
+                </div>
+
+                <!-- Search Bar -->
+                <div class="search-container" id="searchContainer">
+                    <div class="search-wrapper">
+                        <!-- Magnifying Glass Icon -->
+                        <div class="search-icon">
+                            <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M16.5322 19.0332C17.9297 19.0332 19.2393 18.6113 20.3291 17.8906L24.1787 21.749C24.4336 21.9951 24.7588 22.1182 25.1104 22.1182C25.8398 22.1182 26.376 21.5469 26.376 20.8262C26.376 20.4922 26.2617 20.167 26.0156 19.9209L22.1924 16.0801C22.9834 14.9551 23.4492 13.5928 23.4492 12.1162C23.4492 8.31055 20.3379 5.19922 16.5322 5.19922C12.7354 5.19922 9.61523 8.31055 9.61523 12.1162C9.61523 15.9219 12.7266 19.0332 16.5322 19.0332ZM16.5322 17.1875C13.7461 17.1875 11.4609 14.9023 11.4609 12.1162C11.4609 9.33008 13.7461 7.04492 16.5322 7.04492C19.3184 7.04492 21.6035 9.33008 21.6035 12.1162C21.6035 14.9023 19.3184 17.1875 16.5322 17.1875Z" fill="rgba(235, 235, 245, 0.6)"/>
+                            </svg>
+                        </div>
+                        
+                        <input type="text" class="search-bar" id="searchBar" placeholder="Поиск">
+                        
+                        <!-- Microphone Icon -->
+                        <div class="mic-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 14C13.66 14 15 12.66 15 11V5C15 3.34 13.66 2 12 2C10.34 2 9 3.34 9 5V11C9 12.66 10.34 14 12 14Z" fill="rgba(235, 235, 245, 0.6)"/>
+                                <path d="M17 11C17 13.76 14.76 16 12 16C9.24 16 7 13.76 7 11H5C5 14.53 7.61 17.43 11 17.92V21H13V17.92C16.39 17.43 19 14.53 19 11H17V11Z" fill="rgba(235, 235, 245, 0.6)"/>
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <!-- Cancel Button -->
+                    <button class="cancel-btn" id="cancelBtn">Отменить</button>
+                </div>
+
+                <!-- Currency Tabs -->
+                <div class="currency-tabs">
+                    <button class="currency-tab active" data-currency="usd">🇺🇸 USD</button>
+                    <button class="currency-tab" data-currency="eur">🇪🇺 EUR</button>
+                    <button class="currency-tab" data-currency="rub">🇷🇺 RUB</button>
+                    <button class="currency-tab" data-currency="gbp">🇬🇧 GBP</button>
+                    <button class="currency-tab" data-currency="chf">🇨🇭 CHF</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="app-content">
+            <div class="stocks-list" id="stocksList">
+                <!-- Rows will be inserted here -->
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="app-footer">
+            <button class="refresh-btn" id="refreshBtn">Обновить курсы</button>
+            <div class="footer-info">
+                <div class="update-time" id="updateTime">Обновлено в 14:30</div>
+                <div class="app-version">FinHub v1.0</div>
+            </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="spinner"></div>
+        </div>
+    </div>
+
+    <script>
+        // ========================================
+        // TELEGRAM WEB APP INITIALIZATION
+        // ========================================
+        
+        // Initialize Telegram WebApp (with fallback for browser preview)
+        const tg = window.Telegram?.WebApp || {
+            expand: () => console.log('Telegram WebApp not available - running in browser'),
+            enableClosingConfirmation: () => {},
+            setHeaderColor: () => {},
+            setBackgroundColor: () => {},
+            ready: () => {},
+            HapticFeedback: null,
+            isExpanded: false
+        };
+        
+        // Force expand to fullscreen (multiple attempts for inline buttons)
+        function forceExpand() {
+            if (tg.expand) {
+                tg.expand();
+                
+                // If not expanded after 100ms, try again
+                setTimeout(() => {
+                    if (!tg.isExpanded) {
+                        tg.expand();
+                    }
+                }, 100);
+                
+                // Final attempt after 300ms
+                setTimeout(() => {
+                    if (!tg.isExpanded) {
+                        tg.expand();
+                    }
+                }, 300);
+            }
+        }
+        
+        // Expand to fullscreen
+        forceExpand();
+        
+        // Enable closing confirmation
+        tg.enableClosingConfirmation();
+        
+        // Set header color to match app background
+        tg.setHeaderColor('#1A1A1A');
+        tg.setBackgroundColor('#000000');
+        
+        // Ready signal
+        tg.ready();
+        
+        // Re-expand on viewport change (for inline button mode)
+        window.addEventListener('resize', () => {
+            if (!tg.isExpanded) {
+                forceExpand();
+            }
+        });
+        
+        // Haptic feedback helper using Telegram API
+        function triggerHaptic(style = 'light') {
+            if (tg.HapticFeedback) {
+                tg.HapticFeedback.impactOccurred(style); // 'light', 'medium', 'heavy'
+            } else if ('vibrate' in navigator) {
+                navigator.vibrate(10);
+            }
+        }
+        
+        // ========================================
+        // APP DATA & LOGIC
+        // ========================================
+        
+        const banks = [
+            { id: 'hamkor', symbol: 'HMKR', name: 'Hamkor Bank' },
+            { id: 'sqb', symbol: 'SQB', name: 'SQB Bank' },
+            { id: 'ipoteka', symbol: 'IPOT', name: 'Ipoteka Bank' },
+            { id: 'uzum', symbol: 'UZUM', name: 'Uzum Bank' },
+            { id: 'tbc', symbol: 'TBC', name: 'TBC Bank' },
+            { id: 'agrobank', symbol: 'AGRO', name: 'Agrobank' },
+            { id: 'asaka', symbol: 'ASAKA', name: 'Asaka Bank' },
+            { id: 'kapital', symbol: 'KPTL', name: 'Kapitalbank' },
+            { id: 'orient', symbol: 'ORNT', name: 'Orient Finans' },
+            { id: 'infin', symbol: 'INFN', name: 'Infinbank' },
+            { id: 'ravnaq', symbol: 'RVNQ', name: 'Ravnaq Bank' },
+            { id: 'turon', symbol: 'TURN', name: 'Turonbank' },
+            { id: 'universal', symbol: 'UNVR', name: 'Universal Bank' },
+            { id: 'saderat', symbol: 'SDRT', name: 'Saderat Bank' },
+            { id: 'kdb', symbol: 'KDB', name: 'KDB Bank' },
+            { id: 'anor', symbol: 'ANOR', name: 'Anor Bank' },
+            { id: 'qishloq', symbol: 'QSHQ', name: 'Qishloq Qurilish Bank' },
+            { id: 'mikro', symbol: 'MKRB', name: 'Mikrokredit Bank' },
+            { id: 'invest', symbol: 'INVF', name: 'Invest Finance Bank' },
+            { id: 'alfa', symbol: 'ALFA', name: 'Alfa Bank' }
+        ];
+
+        const baseRates = {
+            usd: { base: 12000, spread: 80 },
+            eur: { base: 13700, spread: 100 },
+            rub: { base: 125, spread: 15 },
+            gbp: { base: 15500, spread: 120 },
+            chf: { base: 14800, spread: 95 }
+        };
+
+        const generateRates = (currency) => {
+            const config = baseRates[currency];
+            
+            return banks.map(bank => {
+                const variance = (Math.random() - 0.5) * 200;
+                const buy = config.base + variance;
+                const spreadVariance = config.spread + (Math.random() - 0.5) * 20;
+                const sell = buy + spreadVariance;
+                const change = (Math.random() - 0.5) * 6;
+                
+                return {
+                    ...bank,
+                    buy: buy,
+                    sell: sell,
+                    change: change,
+                    chartData: generateChartData(change)
+                };
+            }).sort((a, b) => a.buy - b.buy);
+        };
+
+        const generateChartData = (change) => {
+            const points = 20;
+            const data = [];
+            let value = 50;
+            const trend = change > 0 ? 1 : -1;
+            
+            for (let i = 0; i < points; i++) {
+                const noise = (Math.random() - 0.5) * 8;
+                const trendInfluence = (i / points) * trend * 15;
+                value = 50 + trendInfluence + noise;
+                value = Math.max(20, Math.min(80, value));
+                data.push(value);
+            }
+            
+            return data;
+        };
+
+        const createMiniChart = (data, isPositive) => {
+            const width = 60;
+            const height = 28;
+            const points = data.length;
+            
+            const max = Math.max(...data);
+            const min = Math.min(...data);
+            const range = max - min || 1;
+            
+            let pathData = '';
+            data.forEach((value, i) => {
+                const x = (i / (points - 1)) * width;
+                const y = height - ((value - min) / range) * (height - 4) - 2;
+                pathData += `${i === 0 ? 'M' : 'L'} ${x},${y} `;
+            });
+            
+            const areaPath = pathData + `L ${width},${height} L 0,${height} Z`;
+            const color = isPositive ? '#34C85A' : '#FD3B31';
+            const gradientId = `grad-${Math.random().toString(36).substr(2, 9)}`;
+            
+            return `
+                <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+                    <defs>
+                        <linearGradient id="${gradientId}" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stop-color="${color}" stop-opacity="0.4"/>
+                            <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+                        </linearGradient>
+                    </defs>
+                    <line x1="0" y1="${height - 3}" x2="${width}" y2="${height - 3}" 
+                          stroke="${color}" stroke-width="0.8" stroke-dasharray="2,2" opacity="0.3"/>
+                    <path d="${areaPath}" fill="url(#${gradientId})"/>
+                    <path d="${pathData}" stroke="${color}" stroke-width="1.5" 
+                          fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            `;
+        };
+
+        const formatNumber = (num) => {
+            return num.toLocaleString('ru-RU', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        };
+
+        const renderStocks = (currency, animate = true) => {
+            const rates = generateRates(currency);
+            window.currentRates = rates; // Сохранить для поиска
+            const container = document.getElementById('stocksList');
+            
+            if (animate) {
+                // Scale out animation
+                container.classList.add('scale-out');
+                
+                setTimeout(() => {
+                    updateContent(rates, true);
+                    container.classList.remove('scale-out');
+                    container.classList.add('scale-in');
+                    
+                    // Remove scale-in after animation
+                    setTimeout(() => {
+                        container.classList.remove('scale-in');
+                    }, 150);
+                }, 150);
+            } else {
+                updateContent(rates, false);
+            }
+        };
+
+        const updateContent = (rates, animateDecimals = false) => {
+            const container = document.getElementById('stocksList');
+            
+            const html = rates.map(rate => {
+                const isPositive = rate.change >= 0;
+                
+                // Split buy/sell into integer and decimal parts
+                const buyParts = rate.buy.toFixed(2).split('.');
+                const sellParts = rate.sell.toFixed(2).split('.');
+                
+                return `
+                    <div class="stock-row">
+                        <div class="company-details">
+                            <div class="symbol-row">
+                                <div class="trend-caret ${isPositive ? 'up' : 'down'}"></div>
+                                <div class="symbol">${rate.symbol}</div>
+                            </div>
+                            <div class="company-name">${rate.name}</div>
+                        </div>
+                        
+                        <div class="rates-section">
+                            <div class="rate-block">
+                                <div class="rate-label">Покупка</div>
+                                <div class="rate-value">
+                                    <span class="rate-integer">${parseInt(buyParts[0]).toLocaleString('ru-RU')}</span>
+                                    <span class="rate-decimal" data-target="${buyParts[1]}">.${animateDecimals ? '00' : buyParts[1]}</span>
+                                </div>
+                            </div>
+                            <div class="rate-block">
+                                <div class="rate-label">Продажа</div>
+                                <div class="rate-value">
+                                    <span class="rate-integer">${parseInt(sellParts[0]).toLocaleString('ru-RU')}</span>
+                                    <span class="rate-decimal" data-target="${sellParts[1]}">.${animateDecimals ? '00' : sellParts[1]}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="chart-container">
+                            ${createMiniChart(rate.chartData, isPositive)}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            container.innerHTML = html;
+            
+            if (animateDecimals) {
+                // Animate decimals after content is rendered
+                setTimeout(() => animateDecimalCounters(), 50);
+            }
+            
+            updateTime();
+            (function enableCompanyNameScroll() {
+              // Для всех fade-container
+              document.querySelectorAll('.fade-container').forEach(container => {
+                const text = container.querySelector('.fade-text');
+                const maskLeft = container.querySelector('.fade-mask.fade-left');
+                text.style.transform = '';
+                container.classList.remove('scrolling');
+                setTimeout(() => {
+                  const visibleW = container.offsetWidth;
+                  const contentW = text.scrollWidth;
+                  if(contentW > visibleW + 2) {
+                    // Right fade всегда включён (fade-mask есть всегда для длинных)
+                    // Left fade — включается только во время скролла
+                    setTimeout(() => {
+                      container.classList.add('scrolling');
+                      text.style.transition = 'transform 7s linear';
+                      text.style.transform = `translateX(-${contentW - visibleW + 18}px)`;
+                    }, 1500);
+                    setTimeout(() => {
+                      text.style.transition = 'transform 2s linear';
+                      text.style.transform = 'translateX(0)';
+                      container.classList.remove('scrolling');
+                    }, 9000);
+                  }
+                }, 50);
+              });
+            })();
+        };
+
+        const animateDecimalCounters = () => {
+            const decimals = document.querySelectorAll('.rate-decimal');
+            
+            decimals.forEach(decimal => {
+                const target = parseInt(decimal.dataset.target);
+                const duration = 500; // 0.5s
+                const steps = 20;
+                const stepTime = duration / steps;
+                let current = 0;
+                let step = 0;
+                
+                const counter = setInterval(() => {
+                    step++;
+                    // Ease-out: fast start, slow end
+                    const progress = 1 - Math.pow(1 - (step / steps), 2);
+                    current = Math.round(progress * target);
+                    
+                    decimal.textContent = `.${current.toString().padStart(2, '0')}`;
+                    
+                    if (step >= steps) {
+                        clearInterval(counter);
+                        decimal.textContent = `.${target.toString().padStart(2, '0')}`;
+                    }
+                }, stepTime);
+            });
+        };
+
+        const updateTime = () => {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('ru-RU', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            document.getElementById('updateTime').textContent = `Обновлено в ${timeStr}`;
+        };
+
+        // Функция фильтрации и отображения результатов поиска
+        function filterAndDisplay(query) {
+            const container = document.getElementById('stocksList');
+            
+            if (!window.currentRates) return;
+            
+            let filtered = window.currentRates;
+            
+            if (query.trim() !== '') {
+                filtered = window.currentRates.filter(rate => 
+                    rate.symbol.toLowerCase().includes(query.toLowerCase()) ||
+                    rate.name.toLowerCase().includes(query.toLowerCase())
+                );
+            }
+            
+            // Рендер БЕЗ анимации
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div style="padding: 40px 20px; text-align: center; color: #8E8E93; font-size: 17px;">
+                        Ничего не найдено
+                    </div>
+                `;
+                return;
+            }
+            
+            // Использовать ту же разметку что и в updateContent(), но без анимации
+            const html = filtered.map(rate => {
+                const isPositive = rate.change >= 0;
+                
+                // Split buy/sell into integer and decimal parts
+                const buyParts = rate.buy.toFixed(2).split('.');
+                const sellParts = rate.sell.toFixed(2).split('.');
+                
+                return `
+                    <div class="stock-row" style="animation: none; opacity: 1; transform: none;">
+                        <div class="company-details">
+                            <div class="symbol-row">
+                                <div class="trend-caret ${isPositive ? 'up' : 'down'}"></div>
+                                <div class="symbol">${rate.symbol}</div>
+                            </div>
+                            <div class="company-name">${rate.name}</div>
+                        </div>
+                        
+                        <div class="rates-section">
+                            <div class="rate-block">
+                                <div class="rate-label">Покупка</div>
+                                <div class="rate-value">
+                                    <span class="rate-integer">${parseInt(buyParts[0]).toLocaleString('ru-RU')}</span>
+                                    <span class="rate-decimal">.${buyParts[1]}</span>
+                                </div>
+                            </div>
+                            <div class="rate-block">
+                                <div class="rate-label">Продажа</div>
+                                <div class="rate-value">
+                                    <span class="rate-integer">${parseInt(sellParts[0]).toLocaleString('ru-RU')}</span>
+                                    <span class="rate-decimal">.${sellParts[1]}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="chart-container">
+                            ${createMiniChart(rate.chartData, isPositive)}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            container.innerHTML = html;
+        }
+
+        // Currency tabs
+        document.querySelectorAll('.currency-tab').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (this.classList.contains('active')) return;
+                
+                document.querySelectorAll('.currency-tab').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                renderStocks(this.dataset.currency, true);
+            });
+        });
+
+        // Refresh button
+        document.getElementById('refreshBtn').addEventListener('click', function() {
+            const loading = document.getElementById('loadingOverlay');
+            const activeTab = document.querySelector('.currency-tab.active');
+            
+            loading.classList.add('active');
+            
+            setTimeout(() => {
+                renderStocks(activeTab.dataset.currency, false);
+                loading.classList.remove('active');
+            }, 800);
+        });
+
+        // Initial render
+        renderStocks('usd', false);
+        
+        // Auto update time every minute
+        setInterval(updateTime, 60000);
+
+        // SEARCH BAR INTERACTIONS - iOS Style
+        const searchContainer = document.getElementById('searchContainer');
+        const searchBar = document.getElementById('searchBar');
+        const cancelBtn = document.getElementById('cancelBtn');
+
+        // Search bar focus - show cancel button
+        searchBar.addEventListener('focus', () => {
+            triggerHaptic();
+            searchContainer.classList.add('active');
+            cancelBtn.classList.add('show');
+        });
+
+        // Cancel button click - hide and blur
+        cancelBtn.addEventListener('click', () => {
+            triggerHaptic();
+            searchContainer.classList.remove('active');
+            cancelBtn.classList.remove('show');
+            searchBar.value = '';
+            searchBar.blur();
+            // Показать все банки при очистке поиска
+            if (window.currentRates) {
+                filterAndDisplay('');
+            }
+        });
+
+        // Search bar blur (when clicking outside)
+        searchBar.addEventListener('blur', (e) => {
+            // Don't hide if clicking cancel button
+            if (e.relatedTarget !== cancelBtn) {
+                setTimeout(() => {
+                    if (document.activeElement !== searchBar) {
+                        searchContainer.classList.remove('active');
+                        cancelBtn.classList.remove('show');
+                    }
+                }, 100);
+            }
+        });
+
+        // Touch feedback for search bar
+        searchBar.addEventListener('touchstart', () => {
+            triggerHaptic();
+        });
+
+        // Search input event - фильтрация в реальном времени
+        searchBar.addEventListener('input', (e) => {
+            filterAndDisplay(e.target.value);
+        });
+    </script>
+</body>
+</html>
