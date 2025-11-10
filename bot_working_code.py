@@ -5,6 +5,7 @@
 
 from telegram import Bot, ReplyKeyboardMarkup, KeyboardButton, WebAppInfo
 from telegram.ext import Application, CommandHandler, MessageHandler, filters
+from datetime import datetime
 
 # Ваш токен бота
 BOT_TOKEN = "7171341328:AAFn6u2zdI3Ht8gCUtFmPvnt4n-aPPednLw"
@@ -12,11 +13,34 @@ BOT_TOKEN = "7171341328:AAFn6u2zdI3Ht8gCUtFmPvnt4n-aPPednLw"
 # URL вашего мини-приложения (ОБЯЗАТЕЛЬНО HTTPS!)
 WEB_APP_URL = "https://guglshotir-ops.github.io/finhub-pro/"
 
+# Версия кнопки - МЕНЯЙТЕ ЭТО ПРИ КАЖДОМ ОБНОВЛЕНИИ!
+BUTTON_VERSION = "v3.0"  # Увеличьте версию при каждом обновлении
+
+def get_button_text():
+    """Генерирует текст кнопки с версией и датой обновления"""
+    now = datetime.now()
+    date_str = now.strftime("%d.%m")  # Формат: 17.11
+    time_str = now.strftime("%H:%M")   # Формат: 22:54
+    
+    # Вариант 1: С версией и датой
+    # return f"🚀 FinHub {BUTTON_VERSION} ({date_str})"
+    
+    # Вариант 2: С версией и временем
+    # return f"🚀 FinHub {BUTTON_VERSION} ({time_str})"
+    
+    # Вариант 3: Просто версия (рекомендуется - короче)
+    return f"🚀 FinHub {BUTTON_VERSION}"
+    
+    # Вариант 4: Только версия без эмодзи
+    # return f"FinHub {BUTTON_VERSION}"
+
 def create_webapp_keyboard():
     """Создает клавиатуру с кнопкой WebApp для полноэкранного режима"""
+    button_text = get_button_text()
+    
     # КРИТИЧЕСКИ ВАЖНО: KeyboardButton с web_app, НЕ InlineKeyboardButton!
     web_app_button = KeyboardButton(
-        text="aaaa",  # Текст кнопки
+        text=button_text,  # Динамический текст кнопки с версией
         web_app=WebAppInfo(url=WEB_APP_URL)  # URL мини-приложения
     )
     
@@ -25,16 +49,17 @@ def create_webapp_keyboard():
         [[web_app_button]],  # Кнопка в одной строке
         resize_keyboard=True,  # Автоматически изменять размер
         one_time_keyboard=False,  # Кнопка остается видимой
-        input_field_placeholder="Нажмите кнопку 'aaaa' для открытия приложения"
+        input_field_placeholder="Нажмите кнопку для открытия приложения"
     )
 
 async def start(update, context):
     """Обработчик команды /start"""
     keyboard = create_webapp_keyboard()
     
+    button_text = get_button_text()
     await update.message.reply_text(
         "👋 Добро пожаловать!\n\n"
-        "Нажмите кнопку 'aaaa' ниже для открытия приложения в полноэкранном режиме.",
+        f"Нажмите кнопку '{button_text}' ниже для открытия приложения в полноэкранном режиме.",
         reply_markup=keyboard
     )
 
@@ -42,9 +67,10 @@ async def handle_message(update, context):
     """Обработчик обычных сообщений"""
     # Всегда показываем кнопку WebApp
     keyboard = create_webapp_keyboard()
+    button_text = get_button_text()
     
     await update.message.reply_text(
-        "Используйте кнопку 'aaaa' для открытия приложения.",
+        f"Используйте кнопку '{button_text}' для открытия приложения.",
         reply_markup=keyboard
     )
 
@@ -60,8 +86,11 @@ def main():
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     
     # Запускаем бота
+    button_text = get_button_text()
     print("✅ Бот запущен и готов к работе!")
     print(f"📱 URL мини-приложения: {WEB_APP_URL}")
+    print(f"🔘 Текст кнопки: {button_text}")
+    print(f"📌 Версия кнопки: {BUTTON_VERSION}")
     application.run_polling(allowed_updates=["message"])
 
 if __name__ == "__main__":
