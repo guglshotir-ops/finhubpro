@@ -12,6 +12,9 @@
     <script>
         // Инициализация СРАЗУ после загрузки SDK (до загрузки DOM)
         (function() {
+            let expandAttempts = 0;
+            const MAX_ATTEMPTS = 20;
+            
             function initTelegramWebApp() {
                 if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) {
                     const tg = window.Telegram.WebApp;
@@ -24,32 +27,71 @@
                     tg.setBackgroundColor('#000000');
                     tg.ready();
                     
-                    // Агрессивное расширение для inline кнопок
-                    [0, 10, 50, 100, 200, 300, 500, 1000].forEach(delay => {
+                    // ОЧЕНЬ АГРЕССИВНОЕ расширение для кнопок в чате
+                    // Множественные попытки с разными задержками
+                    const delays = [0, 5, 10, 20, 30, 50, 75, 100, 150, 200, 250, 300, 400, 500, 750, 1000, 1500, 2000];
+                    delays.forEach(delay => {
                         setTimeout(() => {
-                            if (!tg.isExpanded) {
+                            if (tg.expand && !tg.isExpanded) {
                                 tg.expand();
+                                expandAttempts++;
+                                console.log(`Попытка расширения #${expandAttempts} через ${delay}ms`);
                             }
                         }, delay);
                     });
                     
+                    // Непрерывная проверка и расширение каждые 100ms
+                    const expandInterval = setInterval(() => {
+                        if (tg.expand && !tg.isExpanded && expandAttempts < MAX_ATTEMPTS) {
+                            tg.expand();
+                            expandAttempts++;
+                            console.log(`Автоматическая попытка расширения #${expandAttempts}`);
+                        } else if (tg.isExpanded) {
+                            clearInterval(expandInterval);
+                            console.log('✅ Приложение успешно расширено!');
+                        } else if (expandAttempts >= MAX_ATTEMPTS) {
+                            clearInterval(expandInterval);
+                            console.warn('⚠️ Достигнут лимит попыток расширения');
+                        }
+                    }, 100);
+                    
+                    // Остановить через 3 секунды
+                    setTimeout(() => clearInterval(expandInterval), 3000);
+                    
+                    // Отслеживание изменений viewport
+                    let lastHeight = window.innerHeight;
+                    const viewportCheck = setInterval(() => {
+                        const currentHeight = window.innerHeight;
+                        if (currentHeight !== lastHeight) {
+                            lastHeight = currentHeight;
+                            if (tg.expand && !tg.isExpanded) {
+                                tg.expand();
+                                console.log('Расширение при изменении viewport');
+                            }
+                        }
+                    }, 50);
+                    setTimeout(() => clearInterval(viewportCheck), 5000);
+                    
                     // Экспортируем для использования в других скриптах
                     window.tg = tg;
                     
-                    console.log('Telegram WebApp расширен:', tg.isExpanded);
+                    console.log('Telegram WebApp инициализирован');
+                    console.log('Expanded:', tg.isExpanded);
                     console.log('Platform:', tg.platform);
                     console.log('Version:', tg.version);
+                    console.log('Viewport:', window.innerWidth + 'x' + window.innerHeight);
                 } else {
-                    // Повторная попытка через 50ms
-                    setTimeout(initTelegramWebApp, 50);
+                    // Повторная попытка через 10ms
+                    setTimeout(initTelegramWebApp, 10);
                 }
             }
             
-            // Запускаем сразу
+            // Запускаем СРАЗУ, не ждем DOM
+            initTelegramWebApp();
+            
+            // Также запускаем при загрузке DOM (на всякий случай)
             if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', initTelegramWebApp);
-            } else {
-                initTelegramWebApp();
             }
         })();
     </script>
