@@ -15,13 +15,15 @@
         // Инициализация СРАЗУ после загрузки SDK (до загрузки DOM)
         (function() {
             let expandAttempts = 0;
-            const MAX_ATTEMPTS = 20;
+            const MAX_ATTEMPTS = 100; // Увеличено для более агрессивного расширения
             
             function initTelegramWebApp() {
                 if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) {
                     const tg = window.Telegram.WebApp;
                     
-                    // КРИТИЧЕСКИ ВАЖНО: expand() ПЕРВЫМ!
+                    // КРИТИЧЕСКИ ВАЖНО: expand() ПЕРВЫМ! МНОЖЕСТВЕННЫЕ ВЫЗОВЫ!
+                    tg.expand();
+                    tg.expand();
                     tg.expand();
                     
                     // Настройка
@@ -29,9 +31,26 @@
                     tg.setBackgroundColor('#000000');
                     tg.ready();
                     
-                    // ОЧЕНЬ АГРЕССИВНОЕ расширение для кнопок в чате
-                    // Множественные попытки с разными задержками
-                    const delays = [0, 5, 10, 20, 30, 50, 75, 100, 150, 200, 250, 300, 400, 500, 750, 1000, 1500, 2000];
+                    // ЭКСТРЕМАЛЬНО АГРЕССИВНОЕ расширение
+                    // Вызываем expand() каждые 10ms в течение первых 5 секунд
+                    const aggressiveExpand = setInterval(() => {
+                        if (tg.expand) {
+                            tg.expand();
+                            if (!tg.isExpanded) {
+                                expandAttempts++;
+                                console.log(`Агрессивная попытка #${expandAttempts}`);
+                            } else {
+                                clearInterval(aggressiveExpand);
+                                console.log('✅ Успешно расширено агрессивным методом!');
+                            }
+                        }
+                    }, 10);
+                    
+                    // Остановить через 5 секунд
+                    setTimeout(() => clearInterval(aggressiveExpand), 5000);
+                    
+                    // Дополнительные попытки с задержками
+                    const delays = [0, 5, 10, 20, 30, 50, 75, 100, 150, 200, 250, 300, 400, 500, 750, 1000, 1500, 2000, 3000, 4000, 5000];
                     delays.forEach(delay => {
                         setTimeout(() => {
                             if (tg.expand && !tg.isExpanded) {
@@ -42,37 +61,36 @@
                         }, delay);
                     });
                     
-                    // Непрерывная проверка и расширение каждые 100ms
+                    // Непрерывная проверка каждые 50ms в течение 10 секунд
                     const expandInterval = setInterval(() => {
-                        if (tg.expand && !tg.isExpanded && expandAttempts < MAX_ATTEMPTS) {
+                        if (tg.expand && !tg.isExpanded && expandAttempts < MAX_ATTEMPTS * 2) {
                             tg.expand();
                             expandAttempts++;
                             console.log(`Автоматическая попытка расширения #${expandAttempts}`);
                         } else if (tg.isExpanded) {
                             clearInterval(expandInterval);
                             console.log('✅ Приложение успешно расширено!');
-                        } else if (expandAttempts >= MAX_ATTEMPTS) {
+                        } else if (expandAttempts >= MAX_ATTEMPTS * 2) {
                             clearInterval(expandInterval);
                             console.warn('⚠️ Достигнут лимит попыток расширения');
                         }
-                    }, 100);
+                    }, 50);
                     
-                    // Остановить через 3 секунды
-                    setTimeout(() => clearInterval(expandInterval), 3000);
+                    // Остановить через 10 секунд
+                    setTimeout(() => clearInterval(expandInterval), 10000);
                     
-                    // Отслеживание изменений viewport
+                    // Отслеживание изменений viewport - БЕЗ ОГРАНИЧЕНИЙ
                     let lastHeight = window.innerHeight;
                     const viewportCheck = setInterval(() => {
                         const currentHeight = window.innerHeight;
-                        if (currentHeight !== lastHeight) {
+                        if (currentHeight !== lastHeight || !tg.isExpanded) {
                             lastHeight = currentHeight;
                             if (tg.expand && !tg.isExpanded) {
                                 tg.expand();
                                 console.log('Расширение при изменении viewport');
                             }
                         }
-                    }, 50);
-                    setTimeout(() => clearInterval(viewportCheck), 5000);
+                    }, 25);
                     
                     // Экспортируем для использования в других скриптах
                     window.tg = tg;
@@ -82,9 +100,10 @@
                     console.log('Platform:', tg.platform);
                     console.log('Version:', tg.version);
                     console.log('Viewport:', window.innerWidth + 'x' + window.innerHeight);
+                    console.log('InitParams:', tg.initData);
                 } else {
-                    // Повторная попытка через 10ms
-                    setTimeout(initTelegramWebApp, 10);
+                    // Повторная попытка через 5ms
+                    setTimeout(initTelegramWebApp, 5);
                 }
             }
             
