@@ -10,7 +10,7 @@
     <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
     <meta name="color-scheme" content="dark">
     <!-- ВЕРСИЯ HTML - МЕНЯЕТСЯ ПРИ КАЖДОМ ОБНОВЛЕНИИ -->
-    <meta name="html-version" content="test_2" id="html-version">
+    <meta name="html-version" content="test_3" id="html-version">
     <title>Курсы валют - FinHub</title>
     <!-- Telegram WebApp SDK - ОБЯЗАТЕЛЬНО ПЕРВЫМ! -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -786,6 +786,22 @@
             z-index: 100;
             /* Учитываем safe area снизу */
             padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+            /* Плавная анимация скрытия/показа */
+            transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1), 
+                        opacity 0.3s cubic-bezier(0.4, 0.0, 0.2, 1),
+                        margin-bottom 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+            transform: translateY(0);
+            opacity: 1;
+            margin-bottom: 0;
+        }
+        
+        /* Скрываем footer когда поиск активен (клавиатура открыта) */
+        .search-container.active ~ .app-content ~ .app-footer,
+        body.keyboard-open .app-footer {
+            transform: translateY(100%);
+            opacity: 0;
+            margin-bottom: -200px;
+            pointer-events: none;
         }
 
         .refresh-btn {
@@ -893,7 +909,7 @@
                 <!-- Title & Date & Menu -->
                 <div class="header-top-section">
                     <div class="header-title-group">
-                        <div class="header-main-title">Курсы валют <span style="font-size: 20px; color: #0A84FF; font-weight: 600;">test_2</span></div>
+                        <div class="header-main-title">Курсы валют <span style="font-size: 20px; color: #0A84FF; font-weight: 600;">test_3</span></div>
                         <div class="header-date">5 ноября</div>
                     </div>
                     <button class="header-menu-btn"></button>
@@ -947,7 +963,7 @@
             <button class="refresh-btn" id="refreshBtn">Обновить курсы</button>
             <div class="footer-info">
                 <div class="update-time" id="updateTime">Обновлено в 14:30</div>
-                <div class="app-version">FinHub v1.0 | HTML: test_2</div>
+                <div class="app-version">FinHub v1.0 | HTML: test_3</div>
             </div>
         </div>
 
@@ -1359,6 +1375,15 @@
             cancelBtn.classList.remove('show');
             searchBar.value = '';
             searchBar.blur();
+            // Показываем footer обратно плавно при закрытии клавиатуры
+            document.body.classList.remove('keyboard-open');
+            const footer = document.querySelector('.app-footer');
+            if (footer) {
+                footer.style.transform = 'translateY(0)';
+                footer.style.opacity = '1';
+                footer.style.marginBottom = '0';
+                footer.style.pointerEvents = 'auto';
+            }
             // Показать все банки при очистке поиска
             if (window.currentRates) {
                 filterAndDisplay('');
@@ -1373,6 +1398,15 @@
                     if (document.activeElement !== searchBar) {
                         searchContainer.classList.remove('active');
                         cancelBtn.classList.remove('show');
+                        // Показываем footer обратно плавно при закрытии клавиатуры
+                        document.body.classList.remove('keyboard-open');
+                        const footer = document.querySelector('.app-footer');
+                        if (footer) {
+                            footer.style.transform = 'translateY(0)';
+                            footer.style.opacity = '1';
+                            footer.style.marginBottom = '0';
+                            footer.style.pointerEvents = 'auto';
+                        }
                     }
                 }, 100);
             }
