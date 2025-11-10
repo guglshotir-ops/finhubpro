@@ -6,6 +6,9 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- Скрываем интерфейс браузера для полноэкранного вида -->
+    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+    <meta name="color-scheme" content="dark">
     <!-- ВЕРСИЯ HTML - МЕНЯЕТСЯ ПРИ КАЖДОМ ОБНОВЛЕНИИ -->
     <meta name="html-version" content="test_2" id="html-version">
     <title>Курсы валют - FinHub</title>
@@ -108,20 +111,87 @@
                     console.log('Viewport:', window.innerWidth + 'x' + window.innerHeight);
                     console.log('InitParams:', tg.initData);
                     
-                    // Принудительно устанавливаем полноэкранный вид через CSS
+                    // ПРИНУДИТЕЛЬНО УСТАНАВЛИВАЕМ ПОЛНОЭКРАННЫЙ ВИД - КЛОНИРОВАНИЕ LAUNCHER UX/UI
+                    // 1. Устанавливаем размеры экрана
+                    document.documentElement.style.width = '100vw';
                     document.documentElement.style.height = '100vh';
                     document.documentElement.style.height = '100dvh';
                     document.documentElement.style.overflow = 'hidden';
+                    document.documentElement.style.position = 'fixed';
+                    document.documentElement.style.top = '0';
+                    document.documentElement.style.left = '0';
+                    document.documentElement.style.margin = '0';
+                    document.documentElement.style.padding = '0';
+                    
+                    document.body.style.width = '100vw';
                     document.body.style.height = '100vh';
                     document.body.style.height = '100dvh';
                     document.body.style.overflow = 'hidden';
+                    document.body.style.position = 'fixed';
+                    document.body.style.top = '0';
+                    document.body.style.left = '0';
+                    document.body.style.margin = '0';
+                    document.body.style.padding = '0';
+                    document.body.style.backgroundColor = '#000000';
                     
-                    // Скрываем элементы навигации браузера (если возможно)
-                    if (window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches) {
-                        console.log('✅ Приложение работает в standalone режиме');
-                    }
+                    // 2. Скрываем все элементы Telegram UI через CSS injection
+                    const style = document.createElement('style');
+                    style.id = 'fullscreen-launcher-style';
+                    style.textContent = `
+                        /* Скрываем заголовок Telegram Mini App */
+                        body > :not(.app-container) {
+                            display: none !important;
+                        }
+                        
+                        /* Убираем все отступы и границы */
+                        html, body {
+                            margin: 0 !important;
+                            padding: 0 !important;
+                            border: none !important;
+                            outline: none !important;
+                        }
+                        
+                        /* Приложение занимает весь экран */
+                        .app-container {
+                            position: fixed !important;
+                            top: 0 !important;
+                            left: 0 !important;
+                            width: 100vw !important;
+                            height: 100vh !important;
+                            height: 100dvh !important;
+                            margin: 0 !important;
+                            padding: 0 !important;
+                            z-index: 999999 !important;
+                        }
+                        
+                        /* Скрываем скроллбары везде */
+                        * {
+                            scrollbar-width: none !important;
+                            -ms-overflow-style: none !important;
+                        }
+                        
+                        *::-webkit-scrollbar {
+                            display: none !important;
+                            width: 0 !important;
+                            height: 0 !important;
+                        }
+                    `;
+                    document.head.appendChild(style);
                     
-                    // Предотвращаем прокрутку страницы
+                    // 3. Удаляем все элементы кроме нашего приложения
+                    setTimeout(() => {
+                        const allElements = document.body.children;
+                        for (let i = 0; i < allElements.length; i++) {
+                            if (!allElements[i].classList.contains('app-container')) {
+                                allElements[i].style.display = 'none';
+                            }
+                        }
+                    }, 100);
+                    
+                    // 4. Устанавливаем цвет фона страницы
+                    document.documentElement.style.backgroundColor = '#000000';
+                    
+                    // 5. Предотвращаем прокрутку страницы
                     document.addEventListener('touchmove', function(e) {
                         if (e.target.closest('.app-content')) {
                             return; // Разрешаем прокрутку только внутри контента
@@ -129,7 +199,7 @@
                         e.preventDefault();
                     }, { passive: false });
                     
-                    // Предотвращаем масштабирование
+                    // 6. Предотвращаем масштабирование
                     document.addEventListener('gesturestart', function(e) {
                         e.preventDefault();
                     });
@@ -141,6 +211,21 @@
                     document.addEventListener('gestureend', function(e) {
                         e.preventDefault();
                     });
+                    
+                    // 7. Предотвращаем контекстное меню
+                    document.addEventListener('contextmenu', function(e) {
+                        e.preventDefault();
+                    });
+                    
+                    // 8. Устанавливаем фокус на приложение
+                    setTimeout(() => {
+                        const appContainer = document.querySelector('.app-container');
+                        if (appContainer) {
+                            appContainer.focus();
+                        }
+                    }, 200);
+                    
+                    console.log('✅ Полноэкранный launcher UX/UI активирован!');
                 } else {
                     // Повторная попытка через 5ms
                     setTimeout(initTelegramWebApp, 5);
