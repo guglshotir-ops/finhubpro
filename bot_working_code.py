@@ -13,13 +13,13 @@ BOT_TOKEN = "7171341328:AAFn6u2zdI3Ht8gCUtFmPvnt4n-aPPednLw"
 WEB_APP_URL = "https://guglshotir-ops.github.io/finhubpro/"
 
 # Версия кнопки - МЕНЯЙТЕ ЭТО ПРИ КАЖДОМ ОБНОВЛЕНИИ HTML В GITHUB!
-# Формат: test_1, test_2, test_3 и т.д.
+# Формат: v-1, v-2, v-3 и т.д.
 # Я буду автоматически менять эту версию при каждом обновлении HTML
 BUTTON_VERSION = "v-1"  # Увеличьте номер при каждом обновлении HTML: v-1 → v-2 → v-3...
 
 def get_button_text():
     """Генерирует текст кнопки с версией"""
-    return BUTTON_VERSION  # "test_1", "test_2" и т.д.
+    return BUTTON_VERSION  # "v-1", "v-2" и т.д.
 
 def create_webapp_keyboard():
     """Создает клавиатуру с кнопкой WebApp для полноэкранного режима"""
