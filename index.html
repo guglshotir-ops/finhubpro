@@ -6,86 +6,86 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <!-- Р’Р•Р РЎРРЇ HTML - РњР•РќРЇР•РўРЎРЇ РџР Р РљРђР–Р”РћРњ РћР‘РќРћР’Р›Р•РќРР -->
+    <!-- ВЕРСИЯ HTML - МЕНЯЕТСЯ ПРИ КАЖДОМ ОБНОВЛЕНИИ -->
     <meta name="html-version" content="test_12" id="html-version">
-    <title>РљСѓСЂСЃС‹ РІР°Р»СЋС‚ - FinHub</title>
-    <!-- Telegram WebApp SDK - РћР‘РЇР—РђРўР•Р›Р¬РќРћ РџР•Р Р’Р«Рњ! -->
+    <title>Курсы валют - FinHub</title>
+    <!-- Telegram WebApp SDK - ОБЯЗАТЕЛЬНО ПЕРВЫМ! -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
-        // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РЎР РђР—РЈ РїРѕСЃР»Рµ Р·Р°РіСЂСѓР·РєРё SDK (РґРѕ Р·Р°РіСЂСѓР·РєРё DOM)
+        // Инициализация СРАЗУ после загрузки SDK (до загрузки DOM)
         (function() {
             let expandAttempts = 0;
-            const MAX_ATTEMPTS = 100; // РЈРІРµР»РёС‡РµРЅРѕ РґР»СЏ Р±РѕР»РµРµ Р°РіСЂРµСЃСЃРёРІРЅРѕРіРѕ СЂР°СЃС€РёСЂРµРЅРёСЏ
+            const MAX_ATTEMPTS = 100; // Увеличено для более агрессивного расширения
             
             function initTelegramWebApp() {
                 if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) {
                     const tg = window.Telegram.WebApp;
                     
-                    // РљР РРўРР§Р•РЎРљР Р’РђР–РќРћ: expand() РџР•Р Р’Р«Рњ! РњРќРћР–Р•РЎРўР’Р•РќРќР«Р• Р’Р«Р—РћР’Р«!
-                    // Р’С‹Р·С‹РІР°РµРј expand() Р”Рћ ready() Рё Р”Рћ Р»СЋР±С‹С… РґСЂСѓРіРёС… РѕРїРµСЂР°С†РёР№
+                    // КРИТИЧЕСКИ ВАЖНО: expand() ПЕРВЫМ! МНОЖЕСТВЕННЫЕ ВЫЗОВЫ!
+                    // Вызываем expand() ДО ready() и ДО любых других операций
                     if (tg.expand) {
                         tg.expand();
                         tg.expand();
                         tg.expand();
-                        // Р•С‰Рµ СЂР°Р· РїРѕСЃР»Рµ РЅРµР±РѕР»СЊС€РѕР№ Р·Р°РґРµСЂР¶РєРё
+                        // Еще раз после небольшой задержки
                         setTimeout(() => tg.expand(), 0);
                         setTimeout(() => tg.expand(), 0);
                     }
                     
-                    // РќР°СЃС‚СЂРѕР№РєР°
+                    // Настройка
                     tg.setHeaderColor('#1A1A1A');
                     tg.setBackgroundColor('#000000');
                     tg.ready();
                     
-                    // Р­РљРЎРўР Р•РњРђР›Р¬РќРћ РђР“Р Р•РЎРЎРР’РќРћР• СЂР°СЃС€РёСЂРµРЅРёРµ
-                    // Р’С‹Р·С‹РІР°РµРј expand() РєР°Р¶РґС‹Рµ 10ms РІ С‚РµС‡РµРЅРёРµ РїРµСЂРІС‹С… 5 СЃРµРєСѓРЅРґ
+                    // ЭКСТРЕМАЛЬНО АГРЕССИВНОЕ расширение
+                    // Вызываем expand() каждые 10ms в течение первых 5 секунд
                     const aggressiveExpand = setInterval(() => {
                         if (tg.expand) {
                             tg.expand();
                             if (!tg.isExpanded) {
                                 expandAttempts++;
-                                console.log(`РђРіСЂРµСЃСЃРёРІРЅР°СЏ РїРѕРїС‹С‚РєР° #${expandAttempts}`);
+                                console.log(`Агрессивная попытка #${expandAttempts}`);
                             } else {
                                 clearInterval(aggressiveExpand);
-                                console.log('вњ… РЈСЃРїРµС€РЅРѕ СЂР°СЃС€РёСЂРµРЅРѕ Р°РіСЂРµСЃСЃРёРІРЅС‹Рј РјРµС‚РѕРґРѕРј!');
+                                console.log('✅ Успешно расширено агрессивным методом!');
                             }
                         }
                     }, 10);
                     
-                    // РћСЃС‚Р°РЅРѕРІРёС‚СЊ С‡РµСЂРµР· 5 СЃРµРєСѓРЅРґ
+                    // Остановить через 5 секунд
                     setTimeout(() => clearInterval(aggressiveExpand), 5000);
                     
-                    // Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Рµ РїРѕРїС‹С‚РєРё СЃ Р·Р°РґРµСЂР¶РєР°РјРё
+                    // Дополнительные попытки с задержками
                     const delays = [0, 5, 10, 20, 30, 50, 75, 100, 150, 200, 250, 300, 400, 500, 750, 1000, 1500, 2000, 3000, 4000, 5000];
                     delays.forEach(delay => {
                         setTimeout(() => {
                             if (tg.expand && !tg.isExpanded) {
                                 tg.expand();
                                 expandAttempts++;
-                                console.log(`РџРѕРїС‹С‚РєР° СЂР°СЃС€РёСЂРµРЅРёСЏ #${expandAttempts} С‡РµСЂРµР· ${delay}ms`);
+                                console.log(`Попытка расширения #${expandAttempts} через ${delay}ms`);
                             }
                         }, delay);
                     });
                     
-                    // РќРµРїСЂРµСЂС‹РІРЅР°СЏ РїСЂРѕРІРµСЂРєР° РєР°Р¶РґС‹Рµ 50ms РІ С‚РµС‡РµРЅРёРµ 10 СЃРµРєСѓРЅРґ
+                    // Непрерывная проверка каждые 50ms в течение 10 секунд
                     const expandInterval = setInterval(() => {
                         if (tg.expand && !tg.isExpanded && expandAttempts < MAX_ATTEMPTS * 2) {
                             tg.expand();
                             expandAttempts++;
-                            console.log(`РђРІС‚РѕРјР°С‚РёС‡РµСЃРєР°СЏ РїРѕРїС‹С‚РєР° СЂР°СЃС€РёСЂРµРЅРёСЏ #${expandAttempts}`);
+                            console.log(`Автоматическая попытка расширения #${expandAttempts}`);
                         } else if (tg.isExpanded) {
                             clearInterval(expandInterval);
-                            console.log('вњ… РџСЂРёР»РѕР¶РµРЅРёРµ СѓСЃРїРµС€РЅРѕ СЂР°СЃС€РёСЂРµРЅРѕ!');
+                            console.log('✅ Приложение успешно расширено!');
                         } else if (expandAttempts >= MAX_ATTEMPTS * 2) {
                             clearInterval(expandInterval);
-                            console.warn('вљ пёЏ Р”РѕСЃС‚РёРіРЅСѓС‚ Р»РёРјРёС‚ РїРѕРїС‹С‚РѕРє СЂР°СЃС€РёСЂРµРЅРёСЏ');
+                            console.warn('⚠️ Достигнут лимит попыток расширения');
                         }
                     }, 50);
                     
-                    // РћСЃС‚Р°РЅРѕРІРёС‚СЊ С‡РµСЂРµР· 10 СЃРµРєСѓРЅРґ
+                    // Остановить через 10 секунд
                     setTimeout(() => clearInterval(expandInterval), 10000);
                     
-                    // РћС‚СЃР»РµР¶РёРІР°РЅРёРµ РёР·РјРµРЅРµРЅРёР№ viewport - Р‘Р•Р— РћР“Р РђРќРР§Р•РќРР™
+                    // Отслеживание изменений viewport - БЕЗ ОГРАНИЧЕНИЙ
                     let lastHeight = window.innerHeight;
                     const viewportCheck = setInterval(() => {
                         const currentHeight = window.innerHeight;
@@ -93,22 +93,22 @@
                             lastHeight = currentHeight;
                             if (tg.expand && !tg.isExpanded) {
                                 tg.expand();
-                                console.log('Р Р°СЃС€РёСЂРµРЅРёРµ РїСЂРё РёР·РјРµРЅРµРЅРёРё viewport');
+                                console.log('Расширение при изменении viewport');
                             }
                         }
                     }, 25);
                     
-                    // Р­РєСЃРїРѕСЂС‚РёСЂСѓРµРј РґР»СЏ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ РІ РґСЂСѓРіРёС… СЃРєСЂРёРїС‚Р°С…
+                    // Экспортируем для использования в других скриптах
                     window.tg = tg;
                     
-                    console.log('Telegram WebApp РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°РЅ');
+                    console.log('Telegram WebApp инициализирован');
                     console.log('Expanded:', tg.isExpanded);
                     console.log('Platform:', tg.platform);
                     console.log('Version:', tg.version);
                     console.log('Viewport:', window.innerWidth + 'x' + window.innerHeight);
                     console.log('InitParams:', tg.initData);
                     
-                    // РџСЂРёРЅСѓРґРёС‚РµР»СЊРЅРѕ СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј РїРѕР»РЅРѕСЌРєСЂР°РЅРЅС‹Р№ РІРёРґ С‡РµСЂРµР· CSS
+                    // Принудительно устанавливаем полноэкранный вид через CSS
                     document.documentElement.style.height = '100vh';
                     document.documentElement.style.minHeight = '100vh';
                     document.documentElement.style.maxHeight = '100vh';
@@ -124,25 +124,25 @@
                     document.body.style.right = '0';
                     document.body.style.bottom = '0';
                     
-                    // РЎРєСЂС‹РІР°РµРј СЌР»РµРјРµРЅС‚С‹ РЅР°РІРёРіР°С†РёРё Р±СЂР°СѓР·РµСЂР° (РµСЃР»Рё РІРѕР·РјРѕР¶РЅРѕ)
+                    // Скрываем элементы навигации браузера (если возможно)
                     if (window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches) {
-                        console.log('вњ… РџСЂРёР»РѕР¶РµРЅРёРµ СЂР°Р±РѕС‚Р°РµС‚ РІ standalone СЂРµР¶РёРјРµ');
+                        console.log('✅ Приложение работает в standalone режиме');
                     }
                     
-                    // Р‘Р»РѕРєРёСЂСѓРµРј СЃРєСЂРѕР»Р» window/body
+                    // Блокируем скролл window/body
                     let isKeyboardOpen = false;
                     
-                    // РџСЂРµРґРѕС‚РІСЂР°С‰Р°РµРј РїСЂРѕРєСЂСѓС‚РєСѓ РІСЃРµР№ СЃС‚СЂР°РЅРёС†С‹
+                    // Предотвращаем прокрутку всей страницы
                     const preventScroll = (e) => {
                         if (isKeyboardOpen) {
-                            // Р•СЃР»Рё РєР»Р°РІРёР°С‚СѓСЂР° РѕС‚РєСЂС‹С‚Р°, Р±Р»РѕРєРёСЂСѓРµРј СЃРєСЂРѕР»Р» РЅР° body/html
+                            // Если клавиатура открыта, блокируем скролл на body/html
                             if (e.target === document.body || e.target === document.documentElement) {
                                 e.preventDefault();
                                 return false;
                             }
                         }
                         if (e.target.closest('.app-content')) {
-                            return; // Р Р°Р·СЂРµС€Р°РµРј РїСЂРѕРєСЂСѓС‚РєСѓ С‚РѕР»СЊРєРѕ РІРЅСѓС‚СЂРё РєРѕРЅС‚РµРЅС‚Р°
+                            return; // Разрешаем прокрутку только внутри контента
                         }
                         e.preventDefault();
                     };
@@ -156,12 +156,12 @@
                         }
                     }, { passive: false });
                     
-                    // Р­РєСЃРїРѕСЂС‚РёСЂСѓРµРј РґР»СЏ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ РІ search handlers
+                    // Экспортируем для использования в search handlers
                     window.setKeyboardState = (state) => {
                         isKeyboardOpen = state;
                     };
                     
-                    // РџСЂРµРґРѕС‚РІСЂР°С‰Р°РµРј РјР°СЃС€С‚Р°Р±РёСЂРѕРІР°РЅРёРµ
+                    // Предотвращаем масштабирование
                     document.addEventListener('gesturestart', function(e) {
                         e.preventDefault();
                     });
@@ -174,15 +174,15 @@
                         e.preventDefault();
                     });
                 } else {
-                    // РџРѕРІС‚РѕСЂРЅР°СЏ РїРѕРїС‹С‚РєР° С‡РµСЂРµР· 5ms
+                    // Повторная попытка через 5ms
                     setTimeout(initTelegramWebApp, 5);
                 }
             }
             
-            // Р—Р°РїСѓСЃРєР°РµРј РЎР РђР—РЈ, РЅРµ Р¶РґРµРј DOM
+            // Запускаем СРАЗУ, не ждем DOM
             initTelegramWebApp();
             
-            // РўР°РєР¶Рµ Р·Р°РїСѓСЃРєР°РµРј РїСЂРё Р·Р°РіСЂСѓР·РєРµ DOM (РЅР° РІСЃСЏРєРёР№ СЃР»СѓС‡Р°Р№)
+            // Также запускаем при загрузке DOM (на всякий случай)
             if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', initTelegramWebApp);
             }
@@ -213,7 +213,7 @@
             font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
             background: #000000;
             width: 100vw;
-            height: 100vh; /* РСЃРїРѕР»СЊР·СѓРµРј С‚РѕР»СЊРєРѕ vh, РЅРµ dvh */
+            height: 100vh; /* Используем только vh, не dvh */
             min-height: 100vh;
             max-height: 100vh;
             position: fixed;
@@ -224,15 +224,15 @@
             padding: 0;
             margin: 0;
             overflow: hidden;
-            /* РЎРєСЂС‹РІР°РµРј СЃРєСЂРѕР»Р»Р±Р°СЂ РїРѕР»РЅРѕСЃС‚СЊСЋ */
+            /* Скрываем скроллбар полностью */
             -ms-overflow-style: none;
             scrollbar-width: none;
-            /* РџСЂРµРґРѕС‚РІСЂР°С‰Р°РµРј РјР°СЃС€С‚Р°Р±РёСЂРѕРІР°РЅРёРµ */
+            /* Предотвращаем масштабирование */
             touch-action: pan-x pan-y;
-            /* РЈР±РёСЂР°РµРј РІС‹РґРµР»РµРЅРёРµ С‚РµРєСЃС‚Р° */
+            /* Убираем выделение текста */
             -webkit-user-select: none;
             user-select: none;
-            /* РЈР±РёСЂР°РµРј tap highlight */
+            /* Убираем tap highlight */
             -webkit-tap-highlight-color: transparent;
         }
         
@@ -242,7 +242,7 @@
 
         .app-container {
             width: 100vw;
-            height: 100vh; /* РСЃРїРѕР»СЊР·СѓРµРј С‚РѕР»СЊРєРѕ vh */
+            height: 100vh; /* Используем только vh */
             min-height: 100vh;
             max-height: 100vh;
             display: flex;
@@ -254,14 +254,14 @@
             bottom: 0;
             right: 0;
             overflow: hidden;
-            /* РЈР±РёСЂР°РµРј Р»СЋР±С‹Рµ РѕС‚СЃС‚СѓРїС‹ */
+            /* Убираем любые отступы */
             margin: 0;
             padding: 0;
-            /* РџСЂРµРґРѕС‚РІСЂР°С‰Р°РµРј РїСЂРѕРєСЂСѓС‚РєСѓ СЃС‚СЂР°РЅРёС†С‹ */
+            /* Предотвращаем прокрутку страницы */
             overscroll-behavior: none;
-            /* РџРѕР»РЅРѕСЌРєСЂР°РЅРЅС‹Р№ РІРёРґ */
+            /* Полноэкранный вид */
             z-index: 9999;
-            /* РЈР±РёСЂР°РµРј transition РґР»СЏ РїСЂРµРґРѕС‚РІСЂР°С‰РµРЅРёСЏ РґС‘СЂРіР°РЅРёСЏ */
+            /* Убираем transition для предотвращения дёргания */
         }
 
         /* HEADER */
@@ -272,9 +272,9 @@
             -webkit-backdrop-filter: blur(20px);
             border-bottom: 0.3px solid #36353A;
             z-index: 100;
-            /* РЈР±РёСЂР°РµРј РѕС‚СЃС‚СѓРїС‹ СЃРІРµСЂС…Сѓ РґР»СЏ РїРѕР»РЅРѕСЌРєСЂР°РЅРЅРѕРіРѕ РІРёРґР° */
+            /* Убираем отступы сверху для полноэкранного вида */
             padding-top: env(safe-area-inset-top, 0);
-            /* РЎРєСЂС‹РІР°РµРј СЃРёСЃС‚РµРјРЅС‹Рµ СЌР»РµРјРµРЅС‚С‹ */
+            /* Скрываем системные элементы */
             position: relative;
         }
 
@@ -328,7 +328,7 @@
         }
 
         .header-menu-btn::before {
-            content: 'в‹Ї';
+            content: '⋯';
             color: #8E8E93;
             font-size: 20px;
             font-weight: 700;
@@ -453,7 +453,7 @@
         }
 
         .watchlist-title::after {
-            content: 'в—†';
+            content: '◆';
             font-size: 14px;
             transform: rotate(45deg);
         }
@@ -505,10 +505,10 @@
             overflow-x: hidden;
             -webkit-overflow-scrolling: touch;
             scroll-behavior: smooth;
-            /* РЈР±РёСЂР°РµРј СЃРєСЂРѕР»Р»Р±Р°СЂ */
+            /* Убираем скроллбар */
             scrollbar-width: none;
             -ms-overflow-style: none;
-            /* РџР»Р°РІРЅС‹Р№ РїРµСЂРµС…РѕРґ РґР»СЏ РІС‹СЃРѕС‚С‹ */
+            /* Плавный переход для высоты */
             transition: height 0.3s ease;
         }
 
@@ -864,8 +864,8 @@
                 <!-- Title & Date & Menu -->
                 <div class="header-top-section">
                     <div class="header-title-group">
-                        <div class="header-main-title">РљСѓСЂСЃС‹ РІР°Р»СЋС‚ <span style="font-size: 20px; color: #0A84FF; font-weight: 600;">test_12</span></div>
-                        <div class="header-date">5 РЅРѕСЏР±СЂСЏ</div>
+                        <div class="header-main-title">Курсы валют <span style="font-size: 20px; color: #0A84FF; font-weight: 600;">test_12</span></div>
+                        <div class="header-date">5 ноября</div>
                     </div>
                     <button class="header-menu-btn"></button>
                 </div>
@@ -880,7 +880,7 @@
                             </svg>
                         </div>
                         
-                        <input type="text" class="search-bar" id="searchBar" placeholder="РџРѕРёСЃРє">
+                        <input type="text" class="search-bar" id="searchBar" placeholder="Поиск">
                         
                         <!-- Microphone Icon -->
                         <div class="mic-icon">
@@ -892,16 +892,16 @@
                     </div>
                     
                     <!-- Cancel Button -->
-                    <button class="cancel-btn" id="cancelBtn">РћС‚РјРµРЅРёС‚СЊ</button>
+                    <button class="cancel-btn" id="cancelBtn">Отменить</button>
                 </div>
 
                 <!-- Currency Tabs -->
                 <div class="currency-tabs">
-                    <button class="currency-tab active" data-currency="usd">рџ‡єрџ‡ё USD</button>
-                    <button class="currency-tab" data-currency="eur">рџ‡Єрџ‡є EUR</button>
-                    <button class="currency-tab" data-currency="rub">рџ‡·рџ‡є RUB</button>
-                    <button class="currency-tab" data-currency="gbp">рџ‡¬рџ‡§ GBP</button>
-                    <button class="currency-tab" data-currency="chf">рџ‡Ёрџ‡­ CHF</button>
+                    <button class="currency-tab active" data-currency="usd">🇺🇸 USD</button>
+                    <button class="currency-tab" data-currency="eur">🇪🇺 EUR</button>
+                    <button class="currency-tab" data-currency="rub">🇷🇺 RUB</button>
+                    <button class="currency-tab" data-currency="gbp">🇬🇧 GBP</button>
+                    <button class="currency-tab" data-currency="chf">🇨🇭 CHF</button>
                 </div>
             </div>
         </div>
@@ -915,9 +915,9 @@
 
         <!-- FOOTER -->
         <div class="app-footer">
-            <button class="refresh-btn" id="refreshBtn">РћР±РЅРѕРІРёС‚СЊ РєСѓСЂСЃС‹</button>
+            <button class="refresh-btn" id="refreshBtn">Обновить курсы</button>
             <div class="footer-info">
-                <div class="update-time" id="updateTime">РћР±РЅРѕРІР»РµРЅРѕ РІ 14:30</div>
+                <div class="update-time" id="updateTime">Обновлено в 14:30</div>
                 <div class="app-version">FinHub v1.0 | HTML: test_12</div>
             </div>
         </div>
@@ -930,11 +930,11 @@
 
     <script>
         // ========================================
-        // TELEGRAM WEB APP - РСЃРїРѕР»СЊР·РѕРІР°РЅРёРµ
-        // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ СѓР¶Рµ РІС‹РїРѕР»РЅРµРЅР° РІ <head>
+        // TELEGRAM WEB APP - Использование
+        // Инициализация уже выполнена в <head>
         // ========================================
         
-        // РџРѕР»СѓС‡Р°РµРј tg (СѓР¶Рµ РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°РЅ РІ head РёР»Рё fallback)
+        // Получаем tg (уже инициализирован в head или fallback)
         const tg = window.tg || window.Telegram?.WebApp || {
             expand: () => {},
             enableClosingConfirmation: () => {},
@@ -1072,7 +1072,7 @@
 
         const renderStocks = (currency, animate = true) => {
             const rates = generateRates(currency);
-            window.currentRates = rates; // РЎРѕС…СЂР°РЅРёС‚СЊ РґР»СЏ РїРѕРёСЃРєР°
+            window.currentRates = rates; // Сохранить для поиска
             const container = document.getElementById('stocksList');
             
             if (animate) {
@@ -1116,14 +1116,14 @@
                         
                         <div class="rates-section">
                             <div class="rate-block">
-                                <div class="rate-label">РџРѕРєСѓРїРєР°</div>
+                                <div class="rate-label">Покупка</div>
                                 <div class="rate-value">
                                     <span class="rate-integer">${parseInt(buyParts[0]).toLocaleString('ru-RU')}</span>
                                     <span class="rate-decimal" data-target="${buyParts[1]}">.${animateDecimals ? '00' : buyParts[1]}</span>
                                 </div>
                             </div>
                             <div class="rate-block">
-                                <div class="rate-label">РџСЂРѕРґР°Р¶Р°</div>
+                                <div class="rate-label">Продажа</div>
                                 <div class="rate-value">
                                     <span class="rate-integer">${parseInt(sellParts[0]).toLocaleString('ru-RU')}</span>
                                     <span class="rate-decimal" data-target="${sellParts[1]}">.${animateDecimals ? '00' : sellParts[1]}</span>
@@ -1147,7 +1147,7 @@
             
             updateTime();
             (function enableCompanyNameScroll() {
-              // Р”Р»СЏ РІСЃРµС… fade-container
+              // Для всех fade-container
               document.querySelectorAll('.fade-container').forEach(container => {
                 const text = container.querySelector('.fade-text');
                 const maskLeft = container.querySelector('.fade-mask.fade-left');
@@ -1157,8 +1157,8 @@
                   const visibleW = container.offsetWidth;
                   const contentW = text.scrollWidth;
                   if(contentW > visibleW + 2) {
-                    // Right fade РІСЃРµРіРґР° РІРєР»СЋС‡С‘РЅ (fade-mask РµСЃС‚СЊ РІСЃРµРіРґР° РґР»СЏ РґР»РёРЅРЅС‹С…)
-                    // Left fade вЂ” РІРєР»СЋС‡Р°РµС‚СЃСЏ С‚РѕР»СЊРєРѕ РІРѕ РІСЂРµРјСЏ СЃРєСЂРѕР»Р»Р°
+                    // Right fade всегда включён (fade-mask есть всегда для длинных)
+                    // Left fade — включается только во время скролла
                     setTimeout(() => {
                       container.classList.add('scrolling');
                       text.style.transition = 'transform 7s linear';
@@ -1208,10 +1208,10 @@
                 hour: '2-digit',
                 minute: '2-digit'
             });
-            document.getElementById('updateTime').textContent = `РћР±РЅРѕРІР»РµРЅРѕ РІ ${timeStr}`;
+            document.getElementById('updateTime').textContent = `Обновлено в ${timeStr}`;
         };
 
-        // Р¤СѓРЅРєС†РёСЏ С„РёР»СЊС‚СЂР°С†РёРё Рё РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ СЂРµР·СѓР»СЊС‚Р°С‚РѕРІ РїРѕРёСЃРєР°
+        // Функция фильтрации и отображения результатов поиска
         function filterAndDisplay(query) {
             const container = document.getElementById('stocksList');
             
@@ -1226,17 +1226,17 @@
                 );
             }
             
-            // Р РµРЅРґРµСЂ Р‘Р•Р— Р°РЅРёРјР°С†РёРё
+            // Рендер БЕЗ анимации
             if (filtered.length === 0) {
                 container.innerHTML = `
                     <div style="padding: 40px 20px; text-align: center; color: #8E8E93; font-size: 17px;">
-                        РќРёС‡РµРіРѕ РЅРµ РЅР°Р№РґРµРЅРѕ
+                        Ничего не найдено
                     </div>
                 `;
                 return;
             }
             
-            // РСЃРїРѕР»СЊР·РѕРІР°С‚СЊ С‚Сѓ Р¶Рµ СЂР°Р·РјРµС‚РєСѓ С‡С‚Рѕ Рё РІ updateContent(), РЅРѕ Р±РµР· Р°РЅРёРјР°С†РёРё
+            // Использовать ту же разметку что и в updateContent(), но без анимации
             const html = filtered.map(rate => {
                 const isPositive = rate.change >= 0;
                 
@@ -1256,14 +1256,14 @@
                         
                         <div class="rates-section">
                             <div class="rate-block">
-                                <div class="rate-label">РџРѕРєСѓРїРєР°</div>
+                                <div class="rate-label">Покупка</div>
                                 <div class="rate-value">
                                     <span class="rate-integer">${parseInt(buyParts[0]).toLocaleString('ru-RU')}</span>
                                     <span class="rate-decimal">.${buyParts[1]}</span>
                                 </div>
                             </div>
                             <div class="rate-block">
-                                <div class="rate-label">РџСЂРѕРґР°Р¶Р°</div>
+                                <div class="rate-label">Продажа</div>
                                 <div class="rate-value">
                                     <span class="rate-integer">${parseInt(sellParts[0]).toLocaleString('ru-RU')}</span>
                                     <span class="rate-decimal">.${sellParts[1]}</span>
@@ -1320,17 +1320,17 @@
         searchBar.addEventListener('focus', () => {
             triggerHaptic();
             
-            // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј СЃРѕСЃС‚РѕСЏРЅРёРµ РєР»Р°РІРёР°С‚СѓСЂС‹
+            // Устанавливаем состояние клавиатуры
             if (window.setKeyboardState) {
                 window.setKeyboardState(true);
             }
             
-            // Р”РѕР±Р°РІР»СЏРµРј РєР»Р°СЃСЃС‹
+            // Добавляем классы
             searchContainer.classList.add('active');
             cancelBtn.classList.add('show');
             document.body.classList.add('keyboard-open');
             
-            // РџСЂРµРґРѕС‚РІСЂР°С‰Р°РµРј Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРёР№ СЃРєСЂРѕР»Р» iOS - РјРЅРѕР¶РµСЃС‚РІРµРЅРЅС‹Рµ РїРѕРїС‹С‚РєРё
+            // Предотвращаем автоматический скролл iOS - множественные попытки
             const preventAutoScroll = () => {
                 window.scrollTo(0, 0);
                 document.body.scrollTop = 0;
@@ -1346,7 +1346,7 @@
             setTimeout(preventAutoScroll, 200);
             setTimeout(preventAutoScroll, 300);
             
-            // Р¤РёРєСЃРёСЂСѓРµРј РїРѕР·РёС†РёСЋ app-container
+            // Фиксируем позицию app-container
             const appContainer = document.querySelector('.app-container');
             if (appContainer) {
                 appContainer.style.transform = 'translateY(0)';
@@ -1357,7 +1357,7 @@
         cancelBtn.addEventListener('click', () => {
             triggerHaptic();
             
-            // РЎР±СЂР°СЃС‹РІР°РµРј СЃРѕСЃС‚РѕСЏРЅРёРµ РєР»Р°РІРёР°С‚СѓСЂС‹
+            // Сбрасываем состояние клавиатуры
             if (window.setKeyboardState) {
                 window.setKeyboardState(false);
             }
@@ -1368,7 +1368,7 @@
             searchBar.blur();
             document.body.classList.remove('keyboard-open');
             
-            // РџРѕРєР°Р·Р°С‚СЊ РІСЃРµ Р±Р°РЅРєРё РїСЂРё РѕС‡РёСЃС‚РєРµ РїРѕРёСЃРєР°
+            // Показать все банки при очистке поиска
             if (window.currentRates) {
                 filterAndDisplay('');
             }
@@ -1380,7 +1380,7 @@
             if (e.relatedTarget !== cancelBtn) {
                 setTimeout(() => {
                     if (document.activeElement !== searchBar) {
-                        // РЎР±СЂР°СЃС‹РІР°РµРј СЃРѕСЃС‚РѕСЏРЅРёРµ РєР»Р°РІРёР°С‚СѓСЂС‹
+                        // Сбрасываем состояние клавиатуры
                         if (window.setKeyboardState) {
                             window.setKeyboardState(false);
                         }
@@ -1398,11 +1398,10 @@
             triggerHaptic();
         });
 
-        // Search input event - С„РёР»СЊС‚СЂР°С†РёСЏ РІ СЂРµР°Р»СЊРЅРѕРј РІСЂРµРјРµРЅРё
+        // Search input event - фильтрация в реальном времени
         searchBar.addEventListener('input', (e) => {
             filterAndDisplay(e.target.value);
         });
     </script>
 </body>
 </html>
-
