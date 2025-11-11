@@ -10,12 +10,12 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters
 BOT_TOKEN = "7171341328:AAFn6u2zdI3Ht8gCUtFmPvnt4n-aPPednLw"
 
 # URL вашего мини-приложения (ОБЯЗАТЕЛЬНО HTTPS!)
-WEB_APP_URL = "https://guglshotir-ops.github.io/ubdatefinhun/"
+WEB_APP_URL = "https://guglshotir-ops.github.io/finhubpro/"
 
 # Версия кнопки - МЕНЯЙТЕ ЭТО ПРИ КАЖДОМ ОБНОВЛЕНИИ HTML В GITHUB!
 # Формат: test_1, test_2, test_3 и т.д.
 # Я буду автоматически менять эту версию при каждом обновлении HTML
-BUTTON_VERSION = "test_13"  # Увеличьте номер при каждом обновлении HTML: test_1 → test_2 → test_3...
+BUTTON_VERSION = "v-1"  # Увеличьте номер при каждом обновлении HTML: v-1 → v-2 → v-3...
 
 def get_button_text():
     """Генерирует текст кнопки с версией"""

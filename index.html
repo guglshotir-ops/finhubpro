@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <!-- ВЕРСИЯ HTML - МЕНЯЕТСЯ ПРИ КАЖДОМ ОБНОВЛЕНИИ -->
-    <meta name="html-version" content="test_13" id="html-version">
+    <meta name="html-version" content="v-1" id="html-version">
     <title>Курсы валют - FinHub</title>
     <!-- Telegram WebApp SDK - ОБЯЗАТЕЛЬНО ПЕРВЫМ! -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -110,56 +110,24 @@
                     
                     // Принудительно устанавливаем полноэкранный вид через CSS
                     document.documentElement.style.height = '100vh';
-                    document.documentElement.style.minHeight = '100vh';
-                    document.documentElement.style.maxHeight = '100vh';
+                    document.documentElement.style.height = '100dvh';
                     document.documentElement.style.overflow = 'hidden';
-                    document.documentElement.style.position = 'fixed';
                     document.body.style.height = '100vh';
-                    document.body.style.minHeight = '100vh';
-                    document.body.style.maxHeight = '100vh';
+                    document.body.style.height = '100dvh';
                     document.body.style.overflow = 'hidden';
-                    document.body.style.position = 'fixed';
-                    document.body.style.top = '0';
-                    document.body.style.left = '0';
-                    document.body.style.right = '0';
-                    document.body.style.bottom = '0';
                     
                     // Скрываем элементы навигации браузера (если возможно)
                     if (window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches) {
                         console.log('✅ Приложение работает в standalone режиме');
                     }
                     
-                    // Блокируем скролл window/body
-                    let isKeyboardOpen = false;
-                    
-                    // Предотвращаем прокрутку всей страницы
-                    const preventScroll = (e) => {
-                        if (isKeyboardOpen) {
-                            // Если клавиатура открыта, блокируем скролл на body/html
-                            if (e.target === document.body || e.target === document.documentElement) {
-                                e.preventDefault();
-                                return false;
-                            }
-                        }
+                    // Предотвращаем прокрутку страницы
+                    document.addEventListener('touchmove', function(e) {
                         if (e.target.closest('.app-content')) {
                             return; // Разрешаем прокрутку только внутри контента
                         }
                         e.preventDefault();
-                    };
-                    
-                    document.addEventListener('touchmove', preventScroll, { passive: false });
-                    document.addEventListener('scroll', (e) => {
-                        if (isKeyboardOpen) {
-                            window.scrollTo(0, 0);
-                            document.body.scrollTop = 0;
-                            document.documentElement.scrollTop = 0;
-                        }
                     }, { passive: false });
-                    
-                    // Экспортируем для использования в search handlers
-                    window.setKeyboardState = (state) => {
-                        isKeyboardOpen = state;
-                    };
                     
                     // Предотвращаем масштабирование
                     document.addEventListener('gesturestart', function(e) {
@@ -198,29 +166,22 @@
 
         html {
             width: 100%;
-            height: 100vh;
-            min-height: 100vh;
-            max-height: 100vh;
+            height: 100%;
             overflow: hidden;
             position: fixed;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
         }
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
             background: #000000;
             width: 100vw;
-            height: 100vh; /* Используем только vh, не dvh */
-            min-height: 100vh;
-            max-height: 100vh;
+            height: 100vh;
+            height: 100dvh; /* Dynamic viewport height для мобильных */
             position: fixed;
             top: 0;
             left: 0;
-            bottom: 0;
-            right: 0;
             padding: 0;
             margin: 0;
             overflow: hidden;
@@ -242,17 +203,14 @@
 
         .app-container {
             width: 100vw;
-            height: 100vh; /* Используем только vh */
-            min-height: 100vh;
-            max-height: 100vh;
+            height: 100vh;
+            height: 100dvh; /* Dynamic viewport height */
             display: flex;
             flex-direction: column;
             background: linear-gradient(180deg, #1A1A1A 0%, #0D0D0D 100%);
             position: fixed;
             top: 0;
             left: 0;
-            bottom: 0;
-            right: 0;
             overflow: hidden;
             /* Убираем любые отступы */
             margin: 0;
@@ -261,7 +219,6 @@
             overscroll-behavior: none;
             /* Полноэкранный вид */
             z-index: 9999;
-            /* Убираем transition для предотвращения дёргания */
         }
 
         /* HEADER */
@@ -505,11 +462,12 @@
             overflow-x: hidden;
             -webkit-overflow-scrolling: touch;
             scroll-behavior: smooth;
+            /* Полная высота с учетом safe area */
+            height: calc(100vh - var(--header-height, 200px) - var(--footer-height, 120px));
+            height: calc(100dvh - var(--header-height, 200px) - var(--footer-height, 120px));
             /* Убираем скроллбар */
             scrollbar-width: none;
             -ms-overflow-style: none;
-            /* Плавный переход для высоты */
-            transition: height 0.3s ease;
         }
 
         .app-content::-webkit-scrollbar {
@@ -762,8 +720,8 @@
                 max-height 0.35s ease,
                 opacity 0.25s ease,
                 padding 0.35s ease,
-                backdrop-filter 0s ease,
-                -webkit-backdrop-filter 0s ease;
+                backdrop-filter 0.1s ease,
+                -webkit-backdrop-filter 0.1s ease;
         }
 
         .refresh-btn {
@@ -871,7 +829,7 @@
                 <!-- Title & Date & Menu -->
                 <div class="header-top-section">
                     <div class="header-title-group">
-                        <div class="header-main-title">Курсы валют <span style="font-size: 20px; color: #0A84FF; font-weight: 600;">test_13</span></div>
+                        <div class="header-main-title">Курсы валют</div>
                         <div class="header-date">5 ноября</div>
                     </div>
                     <button class="header-menu-btn"></button>
@@ -925,7 +883,7 @@
             <button class="refresh-btn" id="refreshBtn">Обновить курсы</button>
             <div class="footer-info">
                 <div class="update-time" id="updateTime">Обновлено в 14:30</div>
-                <div class="app-version">FinHub v1.0 | HTML: test_13</div>
+                <div class="app-version">FinHub v1.0 | HTML: v-1</div>
             </div>
         </div>
 
@@ -1326,55 +1284,19 @@
         // Search bar focus - show cancel button and hide footer
         searchBar.addEventListener('focus', () => {
             triggerHaptic();
-            
-            // Устанавливаем состояние клавиатуры
-            if (window.setKeyboardState) {
-                window.setKeyboardState(true);
-            }
-            
-            // Добавляем классы
             searchContainer.classList.add('active');
             cancelBtn.classList.add('show');
             document.body.classList.add('keyboard-open');
-            
-            // Предотвращаем автоматический скролл iOS - множественные попытки
-            const preventAutoScroll = () => {
-                window.scrollTo(0, 0);
-                document.body.scrollTop = 0;
-                document.documentElement.scrollTop = 0;
-            };
-            
-            preventAutoScroll();
-            setTimeout(preventAutoScroll, 0);
-            setTimeout(preventAutoScroll, 10);
-            setTimeout(preventAutoScroll, 50);
-            setTimeout(preventAutoScroll, 100);
-            setTimeout(preventAutoScroll, 150);
-            setTimeout(preventAutoScroll, 200);
-            setTimeout(preventAutoScroll, 300);
-            
-            // Фиксируем позицию app-container
-            const appContainer = document.querySelector('.app-container');
-            if (appContainer) {
-                appContainer.style.transform = 'translateY(0)';
-            }
         });
 
         // Cancel button click - hide and blur
         cancelBtn.addEventListener('click', () => {
             triggerHaptic();
-            
-            // Сбрасываем состояние клавиатуры
-            if (window.setKeyboardState) {
-                window.setKeyboardState(false);
-            }
-            
             searchContainer.classList.remove('active');
             cancelBtn.classList.remove('show');
             searchBar.value = '';
             searchBar.blur();
             document.body.classList.remove('keyboard-open');
-            
             // Показать все банки при очистке поиска
             if (window.currentRates) {
                 filterAndDisplay('');
@@ -1387,11 +1309,6 @@
             if (e.relatedTarget !== cancelBtn) {
                 setTimeout(() => {
                     if (document.activeElement !== searchBar) {
-                        // Сбрасываем состояние клавиатуры
-                        if (window.setKeyboardState) {
-                            window.setKeyboardState(false);
-                        }
-                        
                         searchContainer.classList.remove('active');
                         cancelBtn.classList.remove('show');
                         document.body.classList.remove('keyboard-open');
