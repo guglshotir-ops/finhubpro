@@ -1278,7 +1278,6 @@
             triggerHaptic();
             searchContainer.classList.add('active');
             cancelBtn.classList.add('show');
-            // Скрываем footer
             document.body.classList.add('keyboard-open');
         });
 
@@ -1289,7 +1288,6 @@
             cancelBtn.classList.remove('show');
             searchBar.value = '';
             searchBar.blur();
-            // Показываем footer обратно
             document.body.classList.remove('keyboard-open');
             // Показать все банки при очистке поиска
             if (window.currentRates) {
